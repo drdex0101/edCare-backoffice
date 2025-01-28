@@ -1,0 +1,114 @@
+.main {
+    display: flex;
+    width: 260px;
+    height: 100vh;
+    padding-top: 24px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    background: #FFF;
+    box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.08);
+}
+
+.home-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 64px;
+    padding: 5px 10px;
+    margin-bottom: 24px;
+    gap: 4px;
+    background: #FFF;
+    flex-shrink: 0;
+}
+
+.sub-title {
+    display: flex;
+    align-items: flex-start;
+    padding: 6px 16px;
+    gap: 8px;
+    border-radius: 8px;
+    background: var(--color-orange-400, #FDD399);
+}
+
+.sub-title-text {
+    color: #E8801D;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+.frame-layout {
+    display: flex;
+    align-items: center;
+    padding:0px 12px 0px 0px;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s ease;
+    justify-content: space-between;
+}
+
+.frame-layout:hover {
+    width: 100%;
+    background-color: rgba(235, 154, 56, 0.1);
+}
+
+.frame-layout.active,
+.frame-layout:active {
+    background-color: rgba(235, 154, 56, 0.2);
+}
+
+.frame-layout-header-combine {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.frame-layout-header {
+    width: 6px;
+    height: 44px;
+    background: #FFF;
+}
+
+.frame-layout-header.active,
+.frame-layout-header:active {
+    background: #EB9A38;
+}
+
+.frame-layout-body {
+    display: flex;
+    align-items: flex-start;
+    flex: 1 0 0;
+    background: #FFF;
+}
+
+.frame-layout-body.active {
+    background: rgba(254, 248, 211, 0.60);
+}
+
+.frame-layout-header-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.frame-layout-header-text {
+    color: var(--color-gray-500, #808080);
+    font-family: "Noto Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+}
+
+.frame-layout-header-text.active {
+    color: var(--color-orange-500, #EB9A38);
+}

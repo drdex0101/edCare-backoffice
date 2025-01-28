@@ -1,5 +1,9 @@
-function generateStaticParams() {}
- 
+import SideBar from "@/components/base/sideBar";
+
 export default function Page() {
-  return <h1>Hello, Blog Post Page!</h1>
+  return (
+    <div>
+      <SideBar />
+    </div>
+  )
 }
