@@ -4,7 +4,7 @@ export async function GET(request) {
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
     ssl: {
-      rejectUnauthorized: false, // 若不需要 SSL，可設為 false
+      rejectUnauthorized: false,
     },
   });
 

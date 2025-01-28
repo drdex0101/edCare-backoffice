@@ -3,20 +3,18 @@ import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, Label } from 'recharts';
 import { useState, useEffect } from 'react';
 const DonutsChart = () => {
-    const COLORS = ['#E8801D', '#FAA94D', '#FFD074'];
+    const COLORS = ['#CCC', '#FDD399'];
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalCount, setTotalCount] = useState(0);
     useEffect(() => {
         async function fetchData() {
         try {
-            const response = await fetch("/api/dashboard/countKyc");
+            const response = await fetch("/api/dashboard/countOrder");
             const result = await response.json();
-            // Map the API response to the format expected by the PieChart
             const formattedData = [
-                { name: '尚未填寫KYC', value: parseInt(result.unWriteCount) },
-                { name: '待審核KYC', value: parseInt(result.pendingCount) },
-                { name: '未通過KYC', value: parseInt(result.rejectCount) },
+                { name: '尚未處理', value: parseInt(result.pendingCount) },
+                { name: '處理中', value: parseInt(result.finishCount) },
             ];
             setData(formattedData);
             setTotalCount(parseInt(result.totalCount));
@@ -32,7 +30,6 @@ const DonutsChart = () => {
     if (loading) {
         return <div>Loading...</div>;
       }
-
     return (
         <PieChart width={400} height={340} clipPathId="custom-clip-path-id">
         <Pie

@@ -22,8 +22,7 @@ export async function GET(request) {
       const result = await client.query(
         `SELECT COUNT(*) AS count 
          FROM member 
-         WHERE DATE(created_ts) = DATE(NOW() - INTERVAL $1 DAY);`,
-        [i]
+         WHERE DATE(created_ts) = DATE(NOW() - INTERVAL '${i} DAY');`
       );
       newApplyCounts.push({
         date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
