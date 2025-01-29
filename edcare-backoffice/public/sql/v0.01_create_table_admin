@@ -1,0 +1,9 @@
+CREATE TABLE admin (
+    id BIGSERIAL , -- 會員ID (主鍵，自動遞增)
+    account VARCHAR,
+    email VARCHAR,         -- 電子郵件
+    cellphone VARCHAR,
+    is_enable BOOLEAN,
+    created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 建立時間
+    update_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 更新時間
+);

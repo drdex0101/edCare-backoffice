@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "../components/base/sideBar";
-import Header from "../components/base/header";
+import LayoutWrapper from "../components/LayoutWrapper"; // 將 Sidebar/Header 放入這個 Client Component
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,18 +20,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="flex w-full h-full">
-          <Sidebar />
-          <div className="flex flex-col w-full h-full">
-            <Header />
-            <div className="flex flex-col">
-              {children}
-            </div>
-          </div>
-        </div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );

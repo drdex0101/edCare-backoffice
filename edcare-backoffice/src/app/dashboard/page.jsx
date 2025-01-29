@@ -1,8 +1,8 @@
 "use client";
 import "./dashboard.css";
-import DonutsChart from "@/components/base/dashboard/donutsChart";
-import DonutsChartOrder from "@/components/base/dashboard/donutsChartOrder";
-import SimpleBarChart from "@/components/base/dashboard/barChart";
+import DonutsChart from "@/components/dashboard/donutsChart";
+import DonutsChartOrder from "@/components/dashboard/donutsChartOrder";
+import SimpleBarChart from "@/components/dashboard/barChart";
 import React, { useState, useEffect } from 'react';
 
 export default function Page() {
