@@ -3,17 +3,19 @@
 import Image from "next/image";
 import "./css/sideBar.css";
 import { useState } from "react";
-
+import Link from "next/link";
 export default function SideBar() {
-  const [activeItem, setActiveItem] = useState('儀表板');
-  const [showKYC, setShowKYC] = useState(false);
-  const [showMember, setShowMember] = useState(false);
-  const handleItemClick = (itemName) => {
+    const [activeItem, setActiveItem] = useState('儀表板');
+    const [showKYC, setShowKYC] = useState(false);
+    const [showMember, setShowMember] = useState(false);
+    const handleItemClick = (itemName) => {
     setActiveItem(itemName);
     if (itemName === '審核') {
       setShowKYC(!showKYC);
     } else if (itemName === '會員管理') {
       setShowMember(!showMember);
+    } else if (itemName === 'KYC審核') {
+      router.push('/kyc');
     }
   };
 
@@ -27,10 +29,7 @@ export default function SideBar() {
           </p>
         </div>
       </div>
-        <div 
-          className={`frame-layout ${activeItem === '儀表板' ? 'active' : ''}`} 
-          onClick={() => handleItemClick('儀表板')}
-        >
+        <Link href="/dashboard" className={`frame-layout ${activeItem === '儀表板' ? 'active' : ''}`} onClick={() => handleItemClick('儀表板')}>
             <div className="frame-layout-header-combine">
                 <div className={`frame-layout-header ${activeItem === '儀表板' ? 'active' : ''}`}></div>
                 <div className="frame-layout-header-icon">
@@ -50,11 +49,9 @@ export default function SideBar() {
                     儀表板
                 </div>
             </div>
-        </div>
-        <div 
-          className={`frame-layout ${activeItem === '權限管理' ? 'active' : ''}`}
-          onClick={() => handleItemClick('權限管理')}
-        >
+        </Link>
+
+        <Link href="/admin" className={`frame-layout ${activeItem === '權限管理' ? 'active' : ''}`} onClick={() => handleItemClick('權限管理')}>
             <div className="frame-layout-header-combine">
                 <div className={`frame-layout-header ${activeItem === '權限管理' ? 'active' : ''}`}></div>
                 <div className="frame-layout-header-icon">
@@ -74,7 +71,7 @@ export default function SideBar() {
                     權限管理
                 </div>
             </div>
-        </div>
+        </Link>
         <div 
           className={`frame-layout ${activeItem === '訂單管理' ? 'active' : ''}`}
           onClick={() => handleItemClick('訂單管理')}
@@ -171,23 +168,20 @@ export default function SideBar() {
             </svg>
         </div>
         {showKYC && (
-          <div 
-            className={`frame-layout ${activeItem === 'KYC審核' ? 'active' : ''}`}
-            onClick={() => handleItemClick('KYC審核')}
-          >
-            <div className="frame-layout-header-combine">
-                <div className={`frame-layout-header ${activeItem === 'KYC審核' ? 'active' : ''}`}></div>
-                <div className="frame-layout-header-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
-                    <path d="M5.00039 8.10625C6.98862 8.10625 8.60039 6.49448 8.60039 4.50625C8.60039 2.51802 6.98862 0.90625 5.00039 0.90625C3.01217 0.90625 1.40039 2.51802 1.40039 4.50625C1.40039 6.49448 3.01217 8.10625 5.00039 8.10625Z" 
-                    fill={activeItem === 'KYC審核' ? '#EB9A38' : '#808080'}/>
-                    </svg>
+            <Link href="/kyc" className={`frame-layout ${activeItem === 'KYC審核' ? 'active' : ''}`} onClick={() => handleItemClick('KYC審核')}>
+                <div className="frame-layout-header-combine">
+                    <div className={`frame-layout-header ${activeItem === 'KYC審核' ? 'active' : ''}`}></div>
+                    <div className="frame-layout-header-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
+                        <path d="M5.00039 8.10625C6.98862 8.10625 8.60039 6.49448 8.60039 4.50625C8.60039 2.51802 6.98862 0.90625 5.00039 0.90625C3.01217 0.90625 1.40039 2.51802 1.40039 4.50625C1.40039 6.49448 3.01217 8.10625 5.00039 8.10625Z" 
+                        fill={activeItem === 'KYC審核' ? '#EB9A38' : '#808080'}/>
+                        </svg>
+                    </div>
+                    <div className={`frame-layout-header-text ${activeItem === 'KYC審核' ? 'active' : ''}`}>
+                        KYC審核
+                    </div>
                 </div>
-                <div className={`frame-layout-header-text ${activeItem === 'KYC審核' ? 'active' : ''}`}>
-                    KYC審核
-                </div>
-            </div>
-          </div>
+            </Link>
         )}
       </div>
   );

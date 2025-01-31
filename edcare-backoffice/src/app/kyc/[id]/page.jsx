@@ -1,13 +1,84 @@
 "use client";
 import "./details.css";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from "react";
+import Link from "next/link";
+export default function Page({ params }) {
+    const { id } = use(params); // 使用 `use()` 來解開 Promise
+    const [kycDetails, setKycDetails] = useState(null);
+    const [imgFrontUrl, setImgFrontUrl] = useState(null);
+    const [imgBackUrl, setImgBackUrl] = useState(null);
+    const [isFrontModalOpen, setIsFrontModalOpen] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
-export default function Page() {
+    const fetchKycDetails = async () => { 
+        const response = await fetch(`/api/kyc/getKycDetails?id=${id}`);
+        const data = await response.json(); // ✅ 解析 JSON
+        if (data.success) {
+            setKycDetails(data.kycDetails);
+            if(data.kycDetails.identityfrontuploadid) {
+              fetchImgUrl(data.kycDetails.identityfrontuploadid, setImgFrontUrl);
+            }
+            if(data.kycDetails.identitybackuploadid) {
+              fetchImgUrl(data.kycDetails.identitybackuploadid, setImgBackUrl);
+            }
+        }
+    };
+
+    const fetchImgUrl = async (uploadId, setImageState) => {
+        try {
+            const response = await fetch(`/api/base/getImgUrl?id=${uploadId}`);
+            const data = await response.json();
+            setImageState(data.upload_url); // 直接更新 state
+        } catch (error) {
+            console.error("Error fetching image URL:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (id) {
+            fetchKycDetails();
+        }
+    }, [id]); // 確保 `id` 存在時才執行
+
+
+    useEffect(() => {
+        console.log('KYC Details:', kycDetails); // Log to check if state updates
+    }, [kycDetails]);
+
+    const convertToTaiwanDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear() - 1911; // Convert to ROC year
+        const month = date.getMonth() + 1; // Months are zero-indexed
+        const day = date.getDate();
+        return { year, month, day };
+    };
+
+    const { year, month, day } = kycDetails?.birthday ? convertToTaiwanDate(kycDetails.birthday) : { year: "", month: "", day: "" };
+
+    const toggleFrontModal = () => {
+        setIsFrontModalOpen(!isFrontModalOpen);
+    };
+
+    const toggleBackModal = () => {
+        setIsBackModalOpen(!isBackModalOpen);
+    };
+
+    const handleStatus = (status) => {
+        const response =fetch(`/api/kyc/updateStatus`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status, id }),
+        });
+        if(response.success) {
+            window.location.reload();
+        }
+    };
 
     return (
       <div className="details-container">
         <div className="details-header">
+            <Link href='/kyc'>
             <span className="details-header-title">KYC 審核</span>
+            </Link>
             <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
                 <path d="M0 6.5474L2.54444 3.9974L0 1.4474L0.783333 0.664062L4.11667 3.9974L0.783333 7.33073L0 6.5474Z" fill="#626262"/>
             </svg>
@@ -17,61 +88,95 @@ export default function Page() {
         </div>
         <div className="details-header-back-layout">
           <span className="details-content-main-font">基本資料</span>
-          <div className="details-header-back-button">
-                <button className="details-header-back-button-reject">
-                  不通過
-                </button>
-                <button className="details-header-back-button-accept">
-                  通過
-                </button>
-          </div>
+          {kycDetails?.status === 'pending' && (
+            <div className="details-header-back-button">
+                  <button className="details-header-back-button-reject" onClick={() => handleStatus('不通過')}>
+                    不通過
+                  </button>
+                  <button className="details-header-back-button-accept" onClick={() => handleStatus('通過')}>
+                    通過
+                  </button>
+            </div>
+          )}
         </div>
         <div className="identifyCard-layout">
             <span className="details-content-font">身分證件</span>
             <div className="identifyCard-layout-content">
                 <div className="identifyCard-border">
-                  <img src="/identifyCard.png" alt="身分證件" />
+                <img 
+                    key={imgFrontUrl} // 強制 React 重新渲染
+                    src={imgFrontUrl ? `${imgFrontUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
+                    alt="身分證件" 
+                    onClick={toggleFrontModal}
+                  />
                 </div>
                 <div className="identifyCard-border">
-                  <img src="/identifyCard.png" alt="身分證件" />
+                  <img 
+                    key={imgBackUrl} // 強制 React 重新渲染
+                    src={imgBackUrl ? `${imgBackUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
+                    alt="身分證件" 
+                    onClick={toggleBackModal}
+                  />
                 </div>
             </div>
         </div>
+        {isFrontModalOpen && (
+          <>
+            <div className="modal-overlay" onClick={toggleFrontModal}></div>
+            <div className="modal">
+              <div className="modal-content">
+              <span className="details-content-font">身分證正面</span>
+                <img src={imgFrontUrl ? imgFrontUrl : "/identifyCard.png"} alt="身分證件" />
+              </div>
+            </div>
+          </>
+        )}
+        {isBackModalOpen && (
+          <>
+            <div className="modal-overlay" onClick={toggleBackModal}></div>
+            <div className="modal">
+              <div className="modal-content">
+              <span className="details-content-font">身分證背面</span>
+                <img src={imgBackUrl ? imgBackUrl : "/identifyCard.png"} alt="身分證件" />
+              </div>
+            </div>
+          </>
+        )}
         <div className="content-layout">
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">真實姓名</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.name || ""}/>
             </div>
             <div className="combine-layout">
                 <span className="details-content-font">性別</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.gender === 'male' ?  '男' : '女' || ""}/>
             </div>
-          </div>
+          </div> 
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">出生年(民國)</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={year}/>
             </div>
             <div className="combine-layout">
                 <span className="details-content-font">月</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={month}/>
             </div>
             <div className="combine-layout">
                 <span className="details-content-font">日</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={day}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">身分證字號</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">居家式托育服務登記書號</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
             </div>
           </div>
           <div style={{width: "100%",height: "1px",border: "1px solid #C1C1C1"}}></div>
@@ -79,13 +184,13 @@ export default function Page() {
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">戶籍地址</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">通訊地址</span>
-                <input type="text" className="input-layout" />
+                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
             </div>
           </div>
         </div>
