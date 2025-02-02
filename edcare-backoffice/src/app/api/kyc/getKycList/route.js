@@ -1,21 +1,28 @@
-import { Client } from "pg";
+import { Pool } from "pg";
 import { NextResponse } from "next/server";
+
+// ✅ 使用 `Pool` 提高效能，減少連線開銷
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page"), 10) || 1;
-    const search = searchParams.get("search") || "";
+    const search = searchParams.get("search")?.trim() || "";
 
-    const client = new Client({
-      connectionString: process.env.POSTGRES_URL,
-      ssl: { rejectUnauthorized: false },
-    });
+    // ✅ 設定每頁顯示筆數
+    const pageSize = 5;
+    const offset = (page - 1) * pageSize;
 
-    await client.connect();
+    // ✅ 取得資料庫連線
+    const client = await pool.connect();
 
+    // ✅ 改進 SQL 查詢效能
     let query = `
-      SELECT k.*, m.job, m.line_id,m.account
+      SELECT k.*, m.job, m.line_id, m.account
       FROM kyc_info k
       JOIN member m ON m.kyc_id = CAST(k.id AS VARCHAR)
       WHERE 1=1
@@ -23,20 +30,35 @@ export async function GET(request) {
     let values = [];
 
     if (search) {
-      query += ` AND (k.email ILIKE $1 OR k.account ILIKE $1 OR k.cellphone ILIKE $1 OR k.name ILIKE $1 OR k.identityCard ILIKE $1 OR k.welfareCertNo ILIKE $1)`;
+      query += ` AND (m.account ILIKE $1 OR k.name ILIKE $1 OR k.identityCard ILIKE $1 OR k.welfareCertNo ILIKE $1)`;
       values.push(`%${search}%`);
     }
 
-    query += ` ORDER BY k.id DESC LIMIT 10 OFFSET $${values.length + 1}`;
-    values.push((page - 1) * 10);
+    query += ` ORDER BY k.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+    values.push(pageSize, offset);
 
-    const result = await client.query(query, values);
+    // ✅ 同時取得 `kycList` 和 `totalItems`
+    const [dataResult, countResult] = await Promise.all([
+      client.query(query, values),
+      client.query(`SELECT COUNT(*) FROM kyc_info k JOIN member m ON m.kyc_id = CAST(k.id AS VARCHAR) WHERE 1=1 ${search ? `AND (m.account ILIKE $1 OR k.name ILIKE $1 OR k.identityCard ILIKE $1 OR k.welfareCertNo ILIKE $1)` : ""}`, search ? [`%${search}%`] : []),
+    ]);
 
-    await client.end();
+    // ✅ 釋放連線回到連線池
+    client.release();
 
-    return NextResponse.json({ success: true, kycList: result.rows }, { status: 200 });
+    // ✅ 總筆數
+    const totalItems = parseInt(countResult.rows[0]?.count || "0", 10);
+
+    return NextResponse.json(
+      { success: true, kycList: dataResult.rows, totalItems },
+      { status: 200 }
+    );
+
   } catch (error) {
     console.error("API error:", error);
-    return NextResponse.json({ success: false, error: error.message || "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Database error" },
+      { status: 500 }
+    );
   }
 }

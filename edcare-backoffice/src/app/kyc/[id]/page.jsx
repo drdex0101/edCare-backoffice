@@ -1,6 +1,7 @@
 "use client";
 import "./details.css";
 import React, { useState, useEffect, use } from "react";
+
 import Link from "next/link";
 export default function Page({ params }) {
     const { id } = use(params); // 使用 `use()` 來解開 Promise
@@ -9,6 +10,13 @@ export default function Page({ params }) {
     const [imgBackUrl, setImgBackUrl] = useState(null);
     const [isFrontModalOpen, setIsFrontModalOpen] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true); // ✅ 加入 loading 狀態
+
+    useEffect(() => {
+        if (id) {
+            fetchKycDetails();
+        }
+    }, [id]); // 確保 `id` 存在時才執行
 
     const fetchKycDetails = async () => { 
         const response = await fetch(`/api/kyc/getKycDetails?id=${id}`);
@@ -21,6 +29,7 @@ export default function Page({ params }) {
             if(data.kycDetails.identitybackuploadid) {
               fetchImgUrl(data.kycDetails.identitybackuploadid, setImgBackUrl);
             }
+            setLoading(false); // ✅ 設定 loading 為 false
         }
     };
 
@@ -28,18 +37,11 @@ export default function Page({ params }) {
         try {
             const response = await fetch(`/api/base/getImgUrl?id=${uploadId}`);
             const data = await response.json();
-            setImageState(data.upload_url); // 直接更新 state
+            setImageState(prev => prev !== data.upload_url ? data.upload_url : prev); // ✅ 確保 State 變更
         } catch (error) {
             console.error("Error fetching image URL:", error);
         }
     };
-
-    useEffect(() => {
-        if (id) {
-            fetchKycDetails();
-        }
-    }, [id]); // 確保 `id` 存在時才執行
-
 
     useEffect(() => {
         console.log('KYC Details:', kycDetails); // Log to check if state updates

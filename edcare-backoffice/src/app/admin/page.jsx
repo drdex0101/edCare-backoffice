@@ -3,7 +3,7 @@ import "./admin.css";
 import React, { useState, useEffect } from 'react';
 import Table from "@/components/base/table";
 import Switch from "./switch";
-
+import Pagination from "@/components/base/pagination";
 export default function Page() {
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
     const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ export default function Page() {
     const [adminList, setAdminList] = useState([]);
     const [searchTerm, setSearchTerm] = useState(""); // 存儲搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
-
+    const [totalItems, setTotalItems] = useState(0);
     // 呼叫 API 並傳遞 searchTerm
     const getAdminList = async () => {
         try {
@@ -25,6 +25,7 @@ export default function Page() {
         );
         const data = await response.json();
         setAdminList(data.adminList);
+        setTotalItems(data.totalItems);
         } catch (error) {
         console.error("Failed to fetch admin list:", error);
         }
@@ -97,6 +98,10 @@ export default function Page() {
         };
     }, [isCreateAdminModalOpen]);
 
+    useEffect(() => {
+        getAdminList();
+    }, [searchTerm, currentPage]);
+
     return (
       <div className="admin-main">
         <span className="admin-title">權限管理</span>
@@ -115,7 +120,21 @@ export default function Page() {
                     新增帳號
                 </button>
             </div>
-            <Table adminList={adminList} />
+            {adminList.length > 0 ? (
+                <>
+                    <Table adminList={adminList} searchTerm={searchTerm} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+                    <div className="table-pagination">
+                        <Pagination 
+                            totalItems={totalItems} 
+                            currentPage={currentPage} 
+                            searchTerm={searchTerm} 
+                            setCurrentPage={setCurrentPage} 
+                        />
+                    </div>
+                </>
+            ) : (
+                <div className="no-data-message">查無資料</div>
+            )}
         </div>
         {isCreateAdminModalOpen && (
           <>

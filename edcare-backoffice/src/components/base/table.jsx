@@ -4,12 +4,10 @@ import "../../app/admin/admin.css";
 import { useState, useEffect } from "react";
 import Switch from "../../app/admin/switch";
 import Pagination from "./pagination";
-export default function Table() {
+export default function Table({adminList, currentPage, setCurrentPage, setAdminList}) {
     const columnNames = ['No.', '名稱', '電子信箱', '聯絡電話', '啟/停用', '註冊時間', '動作'];
-    const [adminList, setAdminList] = useState([]);
     const [openModal, setOpenModal] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
     const [adminDetails, setAdminDetails] = useState(null);
     const [email, setEmail] = useState('');
     const [account, setAccount] = useState('');
@@ -17,15 +15,6 @@ export default function Table() {
     const [isEnable, setIsEnable] = useState(false);
     const [editId, setEditId] = useState(null);
     const [editIsEnable, setEditIsEnable] = useState(false);
-
-    const getAdminList = async () => {
-        const response = await fetch(`/api/admin/getAdminList?page=${currentPage}`, {
-            method: 'GET',
-        });
-        const data = await response.json();
-        setAdminList(data.adminList);
-        setOpenModal(false);
-    }
 
     const getAdminDetails = async () => {
         if (!editId) {
@@ -131,10 +120,6 @@ export default function Table() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [openModal, isEditModalOpen]);
-    
-    useEffect(() => {
-        getAdminList();
-    }, []);
 
     return (
         <div className="table-main">
@@ -175,9 +160,6 @@ export default function Table() {
                         </div>
                     </div>
                 ))}
-            </div>
-            <div className="table-pagination">
-                <Pagination totalItems={adminList.length} pageSize={10} currentPage={currentPage} onPageChange={handlePageChange} />
             </div>
             {openModal && (
                 <>
