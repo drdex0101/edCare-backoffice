@@ -1,8 +1,8 @@
 "use client";
 import "./kyc.css";
 import React, { useState, useEffect } from 'react';
-import Table from "@/components/kyc/table";
-import Pagination from "@/components/kyc/pagination";
+import Table from "../../components/kyc/table";
+import Pagination from "../../components/kyc/pagination";
 export default function Page() {
     const [kycList, setKycList] = useState([]);
     const [searchTerm, setSearchTerm] = useState(""); // 搜尋關鍵字

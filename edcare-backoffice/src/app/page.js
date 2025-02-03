@@ -1,16 +1,48 @@
+"use client"
 import Image from "next/image";
 import "./home.css";
-
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 export default function Home() {
+  const [email, setEmail] = useState(""); // ✅ 儲存輸入的 Email
+  const [password, setPassword] = useState(""); // ✅ 儲存輸入的密碼
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const handleLogin = async () => {
+    setError(""); // 清除錯誤訊息
+    if (!email || !password) {
+      setError("請輸入電子信箱和密碼");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/base/login", { // ✅ 修改成你的 API 路徑
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Cookies.set("authToken", data.token, { expires: 7 }); // ✅ 設定 `authToken` (7 天有效)
+        Cookies.set("email", email, { expires: 7 }); // ✅ 存 email
+        router.push("/dashboard"); // ✅ 登入成功導向到 `dashboard`
+      } else {
+        setError(data.message || "登入失敗，請檢查您的帳號和密碼");
+      }
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError("系統錯誤，請稍後再試");
+    }
+  };
+
   return (
     <div className="home">
       <div className="home-header">
         <Image src="/logo.png" alt="logo" width={167} height={50} />
-        <div className="sub-title">
-          <p className="sub-title-text">
-              托育媒合服務系統
-          </p>
-        </div>
       </div>
       <div className="login-layout">
         <Image src="/logo.png" alt="logo" width={167} height={50} />
@@ -27,16 +59,28 @@ export default function Home() {
           <div className="login-input-layout-for-text">
             <div className="login-input-label-text-layout">
               <span className="login-input-label-text-required">帳號</span>
-              <input className="login-input" type="text" placeholder="請輸入電子信箱" />
+              <input
+                className="login-input"
+                type="text"
+                placeholder="請輸入電子信箱"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div className="login-input-label-text-layout">
               <span className="login-input-label-text-required">密碼</span>
-              <input className="login-input" type="password" placeholder="請輸入密碼" />
+              <input
+                className="login-input"
+                type="password"
+                placeholder="請輸入密碼"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
           </div>
         </div>
         <div className="login-button-layout">
-          <button className="login-button">登入</button>
+          <button className="login-button" onClick={handleLogin}>登入</button>
         </div>
       </div>
     </div>

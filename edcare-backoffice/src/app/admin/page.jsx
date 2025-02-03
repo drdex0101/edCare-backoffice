@@ -1,9 +1,9 @@
 "use client";
 import "./admin.css";
 import React, { useState, useEffect } from 'react';
-import Table from "@/components/base/table";
+import Table from "../../components/base/table";
 import Switch from "./switch";
-import Pagination from "@/components/base/pagination";
+import Pagination from "../../components/base/pagination";
 export default function Page() {
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
     const [email, setEmail] = useState("");
