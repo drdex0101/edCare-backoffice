@@ -43,6 +43,58 @@ export default function Page({ params }) {
         }
     };
 
+    const changeRichMenu = async (richMenuId) => {
+      try {
+        const response = await fetch('/api/line/changeRichMenu', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            userId: localStorage.getItem('lineId'), // 獲得 localStorage 的 line id
+            richMenuId: richMenuId
+          }),
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    
+        const data = await response.json();
+        console.log('Update Response:', data);
+        window.location.reload();
+      } catch (err) {
+        console.error('Error updating status:', err);
+        setError(err.message);
+      }
+    };
+  
+    const updateStatus = async (id, status,job) => {
+      try {
+        const response =fetch(`/api/kyc/updateStatus`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status, id }),
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        if (status == '通過') {
+          if (job == '保母') {
+            changeRichMenu('richmenu-80140f174c84df860ab6e4b2f1382634')
+          }
+          else {
+            changeRichMenu('richmenu-dbfe9df32ebd1e9aba105ca6fc996955')
+          }
+        }
+        window.location.reload();
+      } catch (err) {
+        console.error('Error updating status:', err);
+        setError(err.message);
+      }
+    };
+
     useEffect(() => {
         console.log('KYC Details:', kycDetails); // Log to check if state updates
     }, [kycDetails]);
@@ -65,16 +117,6 @@ export default function Page({ params }) {
         setIsBackModalOpen(!isBackModalOpen);
     };
 
-    const handleStatus = (status) => {
-        const response =fetch(`/api/kyc/updateStatus`, {
-            method: 'PATCH',
-            body: JSON.stringify({ status, id }),
-        });
-        if(response.success) {
-            window.location.reload();
-        }
-    };
-
     return (
       <div className="details-container">
         <div className="details-header">
@@ -92,10 +134,10 @@ export default function Page({ params }) {
           <span className="details-content-main-font">基本資料</span>
           {kycDetails?.status === 'pending' && (
             <div className="details-header-back-button">
-                  <button className="details-header-back-button-reject" onClick={() => handleStatus('不通過')}>
+                  <button className="details-header-back-button-reject" onClick={() => updateStatus('不通過')}>
                     不通過
                   </button>
-                  <button className="details-header-back-button-accept" onClick={() => handleStatus('通過')}>
+                  <button className="details-header-back-button-accept" onClick={() => updateStatus('通過')}>
                     通過
                   </button>
             </div>
