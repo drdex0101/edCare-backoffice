@@ -23,12 +23,14 @@ export default function Page({ params }) {
         const data = await response.json(); // ✅ 解析 JSON
         if (data.success) {
             setKycDetails(data.kycDetails);
+            const fetchPromises = []; // 儲存所有的 fetch 請求
             if(data.kycDetails.identityfrontuploadid) {
-              fetchImgUrl(data.kycDetails.identityfrontuploadid, setImgFrontUrl);
+              fetchPromises.push(fetchImgUrl(data.kycDetails.identityfrontuploadid, setImgFrontUrl));
             }
             if(data.kycDetails.identitybackuploadid) {
-              fetchImgUrl(data.kycDetails.identitybackuploadid, setImgBackUrl);
+              fetchPromises.push(fetchImgUrl(data.kycDetails.identitybackuploadid, setImgBackUrl));
             }
+            await Promise.all(fetchPromises); // 等待所有的 fetch 請求完成
             setLoading(false); // ✅ 設定 loading 為 false
         }
     };
@@ -37,7 +39,7 @@ export default function Page({ params }) {
         try {
             const response = await fetch(`/api/base/getImgUrl?id=${uploadId}`);
             const data = await response.json();
-            setImageState(prev => prev !== data.upload_url ? data.upload_url : prev); // ✅ 確保 State 變更
+            setImageState(prev => prev !== data.url ? data.url : prev); // ✅ 確保 State 變更
         } catch (error) {
             console.error("Error fetching image URL:", error);
         }
@@ -117,6 +119,10 @@ export default function Page({ params }) {
         setIsBackModalOpen(!isBackModalOpen);
     };
 
+    if (loading) {
+        return <div className="loading">資料加載中...</div>;
+    }
+
     return (
       <div className="details-container">
         <div className="details-header">
@@ -147,12 +153,12 @@ export default function Page({ params }) {
             <span className="details-content-font">身分證件</span>
             <div className="identifyCard-layout-content">
                 <div className="identifyCard-border">
-                <img 
-                    key={imgFrontUrl} // 強制 React 重新渲染
-                    src={imgFrontUrl ? `${imgFrontUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
-                    alt="身分證件" 
-                    onClick={toggleFrontModal}
-                  />
+                  <img 
+                      key={imgFrontUrl} // 強制 React 重新渲染
+                      src={imgFrontUrl ? `${imgFrontUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
+                      alt="身分證件" 
+                      onClick={toggleFrontModal}
+                    />
                 </div>
                 <div className="identifyCard-border">
                   <img 
@@ -170,7 +176,8 @@ export default function Page({ params }) {
             <div className="modal">
               <div className="modal-content">
               <span className="details-content-font">身分證正面</span>
-                <img src={imgFrontUrl ? imgFrontUrl : "/identifyCard.png"} alt="身分證件" />
+                <img src={imgFrontUrl ? imgFrontUrl : "/identifyCard.png"} alt="身分證件" 
+                />
               </div>
             </div>
           </>
@@ -181,7 +188,8 @@ export default function Page({ params }) {
             <div className="modal">
               <div className="modal-content">
               <span className="details-content-font">身分證背面</span>
-                <img src={imgBackUrl ? imgBackUrl : "/identifyCard.png"} alt="身分證件" />
+                <img src={imgBackUrl ? imgBackUrl : "/identifyCard.png"} alt="身分證件" 
+                />
               </div>
             </div>
           </>
