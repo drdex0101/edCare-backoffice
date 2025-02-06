@@ -1,4 +1,3 @@
-import axios from 'axios';
 
 export async function POST(request) {
   const { userId, richMenuId } = request.body;
