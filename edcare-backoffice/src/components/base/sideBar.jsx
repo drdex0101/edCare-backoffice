@@ -70,10 +70,7 @@ export default function SideBar() {
                 </div>
             </div>
         </Link>
-        <div 
-          className={`frame-layout ${activeItem === '訂單管理' ? 'active' : ''}`}
-          onClick={() => handleItemClick('訂單管理')}
-        >
+        <Link href="/order" className={`frame-layout ${activeItem === '訂單管理' ? 'active' : ''}`} onClick={() => handleItemClick('訂單管理')}>
             <div className="frame-layout-header-combine">
                 <div className={`frame-layout-header ${activeItem === '訂單管理' ? 'active' : ''}`}></div>
                 <div className="frame-layout-header-icon">
@@ -86,7 +83,7 @@ export default function SideBar() {
                     訂單管理
                 </div>
             </div>
-        </div>
+        </Link>
         <div 
           className={`frame-layout ${activeItem === '會員管理' ? 'active' : ''}`}
           onClick={() => handleItemClick('會員管理')}
@@ -109,8 +106,9 @@ export default function SideBar() {
         </div>
         {showMember && (
           <>
-            <div 
+            <Link 
               className={`frame-layout ${activeItem === '家長' ? 'active' : ''}`}
+              href="/member/parent"
               onClick={() => handleItemClick('家長')}
             >
               <div className="frame-layout-header-combine">
@@ -125,9 +123,10 @@ export default function SideBar() {
                   家長
                 </div>
               </div>
-            </div>
-            <div 
+            </Link>
+            <Link 
               className={`frame-layout ${activeItem === '保母' ? 'active' : ''}`}
+              href="/member/nanny"
               onClick={() => handleItemClick('保母')}
             >
               <div className="frame-layout-header-combine">
@@ -142,7 +141,7 @@ export default function SideBar() {
                   保母
                 </div>
               </div>
-            </div>
+            </Link>
           </>
         )}
         <div 

@@ -1,14 +1,13 @@
 "use client";
-import "./css/table.css";
-import "../../app/admin/admin.css";
+import "../base/css/table.css";
+import "../../app/member/member.css";
 import { useState, useEffect } from "react";
 import Switch from "../../app/admin/switch";
-import Pagination from "./pagination";
-export default function Table({adminList, currentPage, setCurrentPage, setAdminList}) {
-    const columnNames = ['No.', '名稱', '電子信箱', '聯絡電話', '啟/停用', '註冊時間', '動作'];
+
+export default function Table({memberList, columnNames}) {
     const [openModal, setOpenModal] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [adminDetails, setAdminDetails] = useState(null);
+    const [memberDetails, setMemberDetails] = useState(null);
     const [email, setEmail] = useState('');
     const [account, setAccount] = useState('');
     const [cellphone, setCellphone] = useState('');
@@ -16,55 +15,33 @@ export default function Table({adminList, currentPage, setCurrentPage, setAdminL
     const [editId, setEditId] = useState(null);
     const [editIsEnable, setEditIsEnable] = useState(false);
 
-    const getAdminDetails = async () => {
-        if (!editId) {
-            console.error("editId is undefined, aborting request");
-            return;
-        }
-    
-        console.time("API Request Time");
-        const response = await fetch(`/api/admin/getAdminDetails?id=${editId}`, {
-            method: 'GET',
-        });
-        console.timeEnd("API Request Time");
-    
-        const data = await response.json();
-        setAdminDetails(data.adminDetails);
-        setIsEditModalOpen(true);
-    }
-
     const handleModal = (id, is_enable) => {
         setOpenModal(true);
         setEditId(id);
         setEditIsEnable(is_enable);
     }
 
-    const updateAdmin = async () => {
-        const response = await fetch('/api/admin/editAdminDetails', {
+    const updateMember = async () => {
+        const response = await fetch('/api/member/editMemberDetails', {
             method: 'PATCH',
             body: JSON.stringify({ id: editId, email: email, account: account, cellphone: cellphone, is_enable: isEnable }),
         });
         const data = await response.json();
         if (data.success) {
-            getAdminList();
+            getMemberList();
             setIsEditModalOpen(false);
         }
     }
 
     const updateStatus = async () => {
-        const response = await fetch('/api/admin/updateStatus', {
+        const response = await fetch('/api/member/updateStatus', {
             method: 'PATCH',
             body: JSON.stringify({ id: editId, is_enable: editIsEnable }),
         });
         const data = await response.json();
         if (data.success) {
-            getAdminList();
+            getMemberList();
         }
-    }
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-        getAdminList();
     }
 
     const handleEdit = (id) => {
@@ -73,16 +50,16 @@ export default function Table({adminList, currentPage, setCurrentPage, setAdminL
 
     useEffect(() => {
         if (editId !== null) {
-            getAdminDetails();
+            getMemberDetails();
         }
     }, [editId]);
 
     useEffect(() => {
-        if (isEditModalOpen && adminDetails) {
-            setEmail(adminDetails.email || "");
-            setAccount(adminDetails.account || "");
-            setCellphone(adminDetails.cellphone || "");
-            setIsEnable(adminDetails.isEnable || false);
+        if (isEditModalOpen && memberDetails) {
+            setEmail(memberDetails.email || "");
+            setAccount(memberDetails.account || "");
+            setCellphone(memberDetails.cellphone || "");
+            setIsEnable(memberDetails.isEnable || false);
         }
     }, [isEditModalOpen]);
 
@@ -105,7 +82,7 @@ export default function Table({adminList, currentPage, setCurrentPage, setAdminL
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if ((openModal || isEditModalOpen) && !event.target.closest('.admin-create-modal')) {
+            if ((openModal || isEditModalOpen) && !event.target.closest('.member-create-modal')) {
                 setOpenModal(false);
                 setIsEditModalOpen(false);
                 setEmail("");
@@ -131,32 +108,25 @@ export default function Table({adminList, currentPage, setCurrentPage, setAdminL
                 ))}
             </div>
             <div className="table-body">
-                {adminList.map((admin, index) => (
+                {memberList.map((member, index) => (
                     <div key={index} style={{width: '100%', display: 'flex'}}>
                         <div className="table-body-column">
-                            {admin.id}
+                            {member.id}
                         </div>
                         <div className="table-body-column">
-                            {admin.account}
+                            {member.account}
                         </div>
                         <div className="table-body-column">
-                            {admin.email}
+                            {member.email}
                         </div>
                         <div className="table-body-column">
-                            {admin.cellphone}
+                            {member.cellphone}
                         </div>
                         <div className="table-body-column">
-                            <Switch isOn={admin.is_enable} onChange={() => handleModal(admin.id, !admin.is_enable)} />
+                            {member.job}
                         </div>
                         <div className="table-body-column">
-                            {new Date(admin.created_ts).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })}
-                        </div>
-                        <div className="table-body-column">
-                            <button className="editButton" onClick={() => handleEdit(admin.id)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
-                                <path d="M14.3297 9.35037L15.1474 10.168L7.0952 18.2202H6.27753V17.4026L14.3297 9.35037V9.35037ZM17.5293 4C17.3071 4 17.076 4.08888 16.9072 4.25774L15.2807 5.88418L18.6136 9.21705L20.24 7.59061C20.5867 7.24399 20.5867 6.68407 20.24 6.33745L18.1603 4.25774C17.9826 4.07999 17.7604 4 17.5293 4V4ZM14.3297 6.83516L4.5 16.6649V19.9978H7.83287L17.6626 10.168L14.3297 6.83516V6.83516Z" fill="white"/>
-                                </svg>
-                            </button>
+                            {new Date(member.created_ts).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })}
                         </div>
                     </div>
                 ))}
@@ -181,28 +151,28 @@ export default function Table({adminList, currentPage, setCurrentPage, setAdminL
             )}
             {isEditModalOpen && (
                 <>
-                <div className="admin-create-modal-backdrop"></div>
-                <div className="admin-create-modal">
-                  <span className="admin-create-modal-title">帳號編輯</span>
-                  <div className="admin-create-modal-content">
-                    <div className="admin-create-modal-content-item">
-                      <span className="admin-create-modal-content-item-title">電子信箱</span>
-                      <input type="text" className="admin-create-modal-content-item-input" placeholder="請輸入電子信箱" value={email} onChange={handleEmailChange}/>
+                <div className="member-create-modal-backdrop"></div>
+                <div className="member-create-modal">
+                  <span className="member-create-modal-title">帳號編輯</span>
+                  <div className="member-create-modal-content">
+                    <div className="member-create-modal-content-item">
+                      <span className="member-create-modal-content-item-title">電子信箱</span>
+                      <input type="text" className="member-create-modal-content-item-input" placeholder="請輸入電子信箱" value={email} onChange={handleEmailChange}/>
                     </div>
-                    <div className="admin-create-modal-content-item">
-                      <span className="admin-create-modal-content-item-title">帳號名稱</span>
-                      <input type="text" className="admin-create-modal-content-item-input" placeholder="請輸入帳號名稱" value={account} onChange={handleAccountChange}/>
+                    <div className="member-create-modal-content-item">
+                      <span className="member-create-modal-content-item-title">帳號名稱</span>
+                      <input type="text" className="member-create-modal-content-item-input" placeholder="請輸入帳號名稱" value={account} onChange={handleAccountChange}/>
                     </div>
-                    <div className="admin-create-modal-content-item">
-                      <span className="admin-create-modal-content-item-title">聯絡電話</span>
-                      <input type="text" className="admin-create-modal-content-item-input" placeholder="請輸入聯絡電話" value={cellphone} onChange={handlePhoneChange}/>
+                    <div className="member-create-modal-content-item">
+                      <span className="member-create-modal-content-item-title">聯絡電話</span>
+                      <input type="text" className="member-create-modal-content-item-input" placeholder="請輸入聯絡電話" value={cellphone} onChange={handlePhoneChange}/>
                     </div>
-                    <div className="admin-enable-switch">
-                        <span className="admin-create-modal-content-item-title">帳號啟用</span>
+                    <div className="member-enable-switch">
+                        <span className="member-create-modal-content-item-title">帳號啟用</span>
                         <Switch isOn={isEnable} onChange={handleEnableChange} />
                     </div>
-                    <div className="admin-create-button-wrapper">
-                        <button className="admin-create-button" onClick={updateAdmin}>確認</button>
+                    <div className="member-create-button-wrapper">
+                        <button className="member-create-button" onClick={updateMember}>確認</button>
                     </div>
                   </div>
                 </div>

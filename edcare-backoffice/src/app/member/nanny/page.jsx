@@ -1,38 +1,39 @@
 "use client";
-import "./kyc.css";
+import "../member.css";
 import React, { useState, useEffect } from 'react';
-import Table from "../../components/kyc/table";
-import Pagination from "../../components/base/pagination";
+import Table from "../../../components/member/table";
+import Pagination from "../../../components/base/pagination";
 export default function Page() {
-    const [kycList, setKycList] = useState([]);
+    const [memberList, setmemberList] = useState([]);
     const [searchTerm, setSearchTerm] = useState(""); // 搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
     const [totalItems, setTotalItems] = useState(0); // 總筆數
-    // 取得 KYC 列表
-    const getKycList = async () => {
+    const columnNames = ['No.', '帳號名稱', '電子信箱', '手機', '職業', '註冊時間'];
+    // 取得 member 列表
+    const getmemberList = async () => {
         try {
             const response = await fetch(
-                `/api/kyc/getKycList?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
+                `/api/member/getMemberList?page=${currentPage}&search=${encodeURIComponent(searchTerm)}&job=0`,
                 { method: "GET" }
             );
             const data = await response.json();
             
             if (data.success) {
-                setKycList(data.kycList);
+                setmemberList(data.memberList);
                 setTotalItems(data.totalItems);
             } else {
-                setKycList([]);
+                setmemberList([]);
                 console.error("Failed to fetch data:", data.message);
             }
         } catch (error) {
-            console.error("Failed to fetch KYC list:", error);
-            setKycList([]);
+            console.error("Failed to fetch member list:", error);
+            setmemberList([]);
         }
     };
 
     // 當 `searchTerm` 或 `currentPage` 變化時，重新獲取資料
     useEffect(() => {
-        getKycList();
+        getmemberList();
     }, [searchTerm, currentPage]); // ✅ 監聽 `searchTerm` & `currentPage`
 
     // 搜尋時重置分頁
@@ -42,14 +43,14 @@ export default function Page() {
     };
 
     return (
-      <div className="kyc-main">
-        <span className="kyc-title">KYC審核</span>
-        <div className="kyc-content">
-            <div className="kyc-table-search">
+      <div className="member-main">
+        <span className="member-title">會員審核(保母)</span>
+        <div className="member-content">
+            <div className="member-table-search">
                 <div className="input-wrapper">
                     <input
                         type="text"
-                        className="kyc-table-search-input"
+                        className="member-table-search-input"
                         placeholder="請輸入關鍵字"
                         value={searchTerm}
                         onChange={handleSearchChange} // ✅ 讓 `searchTerm` 變化時，自動觸發 `useEffect`
@@ -62,13 +63,13 @@ export default function Page() {
                     </div>
                 </div>
             </div>
-            {kycList.length > 0 ? (
+            {memberList.length > 0 ? (
                 <>
-                    <Table kycList={kycList} searchTerm={searchTerm} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+                    <Table memberList={memberList} columnNames={columnNames}/>
                     <div className="table-pagination">
                         <Pagination 
                             totalItems={totalItems} 
-                            kycList={kycList} 
+                            memberList={memberList} 
                             currentPage={currentPage} 
                             searchTerm={searchTerm} 
                             setCurrentPage={setCurrentPage} 

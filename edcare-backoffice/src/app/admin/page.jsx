@@ -1,7 +1,7 @@
 "use client";
 import "./admin.css";
 import React, { useState, useEffect } from 'react';
-import Table from "../../components/base/table";
+import Table from "../../components/admin/table";
 import Switch from "./switch";
 import Pagination from "../../components/base/pagination";
 export default function Page() {
@@ -14,6 +14,7 @@ export default function Page() {
     const [searchTerm, setSearchTerm] = useState(""); // 存儲搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
     const [totalItems, setTotalItems] = useState(0);
+    const columnNames = ['No.', '名稱', '電子信箱', '聯絡電話', '啟/停用', '註冊時間', '動作'];
     // 呼叫 API 並傳遞 searchTerm
     const getAdminList = async () => {
         try {
@@ -122,7 +123,7 @@ export default function Page() {
             </div>
             {adminList.length > 0 ? (
                 <>
-                    <Table adminList={adminList} searchTerm={searchTerm} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+                    <Table adminList={adminList} columnNames={columnNames}/>
                     <div className="table-pagination">
                         <Pagination 
                             totalItems={totalItems} 

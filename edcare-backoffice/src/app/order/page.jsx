@@ -1,38 +1,39 @@
 "use client";
-import "./kyc.css";
+import "./order.css";
 import React, { useState, useEffect } from 'react';
-import Table from "../../components/kyc/table";
+import Table from "../../components/order/table";
 import Pagination from "../../components/base/pagination";
 export default function Page() {
-    const [kycList, setKycList] = useState([]);
+    const [orderList, setorderList] = useState([]);
     const [searchTerm, setSearchTerm] = useState(""); // 搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
     const [totalItems, setTotalItems] = useState(0); // 總筆數
-    // 取得 KYC 列表
-    const getKycList = async () => {
+    const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','媒合通過','拒絕媒合'];
+    // 取得 order 列表
+    const getorderList = async () => {
         try {
             const response = await fetch(
-                `/api/kyc/getKycList?page=${currentPage}&search=${encodeURIComponent(searchTerm)}`,
+                `/api/order/getOrderList?page=${currentPage}`,
                 { method: "GET" }
             );
             const data = await response.json();
             
             if (data.success) {
-                setKycList(data.kycList);
+                setorderList(data.orderList);
                 setTotalItems(data.totalItems);
             } else {
-                setKycList([]);
+                setorderList([]);
                 console.error("Failed to fetch data:", data.message);
             }
         } catch (error) {
-            console.error("Failed to fetch KYC list:", error);
-            setKycList([]);
+            console.error("Failed to fetch order list:", error);
+            setorderList([]);
         }
     };
 
     // 當 `searchTerm` 或 `currentPage` 變化時，重新獲取資料
     useEffect(() => {
-        getKycList();
+        getorderList();
     }, [searchTerm, currentPage]); // ✅ 監聽 `searchTerm` & `currentPage`
 
     // 搜尋時重置分頁
@@ -42,14 +43,14 @@ export default function Page() {
     };
 
     return (
-      <div className="kyc-main">
-        <span className="kyc-title">KYC審核</span>
-        <div className="kyc-content">
-            <div className="kyc-table-search">
+      <div className="order-main">
+        <span className="order-title">訂單管理</span>
+        <div className="order-content">
+            <div className="order-table-search">
                 <div className="input-wrapper">
                     <input
                         type="text"
-                        className="kyc-table-search-input"
+                        className="order-table-search-input"
                         placeholder="請輸入關鍵字"
                         value={searchTerm}
                         onChange={handleSearchChange} // ✅ 讓 `searchTerm` 變化時，自動觸發 `useEffect`
@@ -62,13 +63,13 @@ export default function Page() {
                     </div>
                 </div>
             </div>
-            {kycList.length > 0 ? (
+            {orderList.length > 0 ? (
                 <>
-                    <Table kycList={kycList} searchTerm={searchTerm} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+                    <Table orderList={orderList} columnNames={columnNames}/>
                     <div className="table-pagination">
                         <Pagination 
                             totalItems={totalItems} 
-                            kycList={kycList} 
+                            orderList={orderList} 
                             currentPage={currentPage} 
                             searchTerm={searchTerm} 
                             setCurrentPage={setCurrentPage} 

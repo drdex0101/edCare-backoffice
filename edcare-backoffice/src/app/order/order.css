@@ -1,0 +1,223 @@
+.order-main {
+    background: #faf8f8;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: calc(100vh - 50px);
+    padding: 31px 31px 31px 31px;
+    gap: 24px;
+}
+
+.order-title {
+    color: #626262;
+    font-family: Roboto;
+    font-size: 21px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px;
+}
+
+.order-content {
+    display: flex;
+    width: 1100px;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #DDD;
+    background: #FFF;
+}
+
+.order-table-search {
+    display: flex;
+    padding: 14px 16px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+    border: 1px solid #DDD;
+    background: #FFF;  
+}
+
+.order-table-search-input {
+    display: flex;
+    width: 240px;
+    padding: 8px 12px;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    align-self: stretch;
+    border-radius: 6px;
+    border: 1px solid #C1C1C1;
+    padding-left: 30px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.search-icon {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.order-table-create-button {
+    display: flex;
+    padding: 8px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    background: #EB9A38;
+    color: #FFF;
+    text-align: center;
+    font-family: "Noto Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.order-create-modal {
+    display: flex;
+    width: 600px;
+    padding: 24px 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    border-radius: 8px;
+    background: #FFF;
+    box-shadow: 0px 5px 14px 0px rgba(0, 0, 0, 0.12);
+}
+
+.order-create-modal-title {
+    color: var(--Grey-Grey-800, #626262);
+    font-family: "Noto Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.order-create-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 999; /* Ensure it appears behind the modal */
+}
+
+.order-create-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+.order-create-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+}
+
+.order-create-modal-content-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    align-self: stretch;
+    width: 100%;
+}
+
+.order-create-modal-content-item-title {
+    color: var(--Grey-Grey-800, #626262);
+    font-family: "Noto Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px; /* 133.333% */
+}
+
+.order-create-modal-content-item-input {
+    display: flex;
+    padding: 12px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 6px;
+    border: 1px solid #C1C1C1;
+    width: 100%;
+}
+
+.order-enable-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-create-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    align-self: stretch;
+}
+
+.order-create-button {
+    display: flex;
+    padding: 8px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    background: #EB9A38;
+    color: #FFF;
+    text-align: center;
+    font-family: "Noto Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.order-status-success-font {
+    color: var(---correct-100, #008009);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 40px;
+}
+
+.order-status-matching-font {
+    color: var(---Error-OnContainer, #410002);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.order-status-pending-font {
+    color: var(---SurfaceContainer-Lowest, #FFF);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

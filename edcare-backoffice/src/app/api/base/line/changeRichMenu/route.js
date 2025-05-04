@@ -1,10 +1,10 @@
 
 export async function POST(request) {
-  const { userId, richMenuId } = request.body;
+  const { line_id, richMenuId } = request.body;
 
   try {
     // 綁定 Rich Menu 到用戶
-    const response = await fetch(`https://api.line.me/v2/bot/user/${userId}/richmenu/${richMenuId}`, {
+    const response = await fetch(`https://api.line.me/v2/bot/user/${line_id}/richmenu/${richMenuId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,  // 確保 Token 正確

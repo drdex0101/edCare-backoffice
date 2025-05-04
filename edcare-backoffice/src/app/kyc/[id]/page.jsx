@@ -45,34 +45,34 @@ export default function Page({ params }) {
         }
     };
 
-    const changeRichMenu = async (richMenuId) => {
+    const changeRichMenu = async (richMenuId, kycId) => {
       try {
-        const response = await fetch('/api/line/changeRichMenu', {
-          method: 'POST',
+        const response = await fetch("/api/base/line/changeRichMenu", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,
           },
           body: JSON.stringify({
-            userId: localStorage.getItem('lineId'), // 獲得 localStorage 的 line id
-            richMenuId: richMenuId
+            richMenuId: richMenuId,
+            kycId: kycId,
           }),
         });
-    
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    
+  
         const data = await response.json();
-        console.log('Update Response:', data);
+        console.log("Update Response:", data);
         window.location.reload();
       } catch (err) {
-        console.error('Error updating status:', err);
+        console.error("Error updating status:", err);
         setError(err.message);
       }
     };
   
-    const updateStatus = async (id, status,job) => {
+    const updateStatus = async (id, status,job,line_id) => {
       try {
         const response =fetch(`/api/kyc/updateStatus`, {
             method: 'PATCH',
@@ -82,15 +82,15 @@ export default function Page({ params }) {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        if (status == '通過') {
-          if (job == '保母') {
-            changeRichMenu('richmenu-80140f174c84df860ab6e4b2f1382634')
-          }
-          else {
-            changeRichMenu('richmenu-dbfe9df32ebd1e9aba105ca6fc996955')
+        if (status == 'approve') {
+          if (status == "approve") {
+            if (job == "保母") {
+              changeRichMenu("richmenu-3adb9975aee0c695e08c99ef572d4008",id);
+            } else {
+              changeRichMenu("richmenu-48f0c719cfbfc92dd6ea5b8ce10b6cb3",id);
+            }
           }
         }
-        window.location.reload();
       } catch (err) {
         console.error('Error updating status:', err);
         setError(err.message);
@@ -140,10 +140,10 @@ export default function Page({ params }) {
           <span className="details-content-main-font">基本資料</span>
           {kycDetails?.status === 'pending' && (
             <div className="details-header-back-button">
-                  <button className="details-header-back-button-reject" onClick={() => updateStatus('不通過')}>
+                  <button className="details-header-back-button-reject" onClick={() => updateStatus(kycDetails?.id,'fail',kycDetails?.job,kycDetails?.line_id)}>
                     不通過
                   </button>
-                  <button className="details-header-back-button-accept" onClick={() => updateStatus('通過')}>
+                  <button className="details-header-back-button-accept" onClick={() => updateStatus(kycDetails?.id,'approve',kycDetails?.job,kycDetails?.line_id)}>
                     通過
                   </button>
             </div>
@@ -158,6 +158,7 @@ export default function Page({ params }) {
                       src={imgFrontUrl ? `${imgFrontUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
                       alt="身分證件" 
                       onClick={toggleFrontModal}
+                      style={{width: "100%",height: "100%"}}
                     />
                 </div>
                 <div className="identifyCard-border">
@@ -166,6 +167,7 @@ export default function Page({ params }) {
                     src={imgBackUrl ? `${imgBackUrl}?t=${new Date().getTime()}` : "/identifyCard.png"} 
                     alt="身分證件" 
                     onClick={toggleBackModal}
+                    style={{width: "100%",height: "100%"}}
                   />
                 </div>
             </div>
@@ -177,7 +179,8 @@ export default function Page({ params }) {
               <div className="modal-content">
               <span className="details-content-font">身分證正面</span>
                 <img src={imgFrontUrl ? imgFrontUrl : "/identifyCard.png"} alt="身分證件" 
-                />
+                style={{width: "100%",height: "100%"}}
+                />  
               </div>
             </div>
           </>
@@ -189,6 +192,7 @@ export default function Page({ params }) {
               <div className="modal-content">
               <span className="details-content-font">身分證背面</span>
                 <img src={imgBackUrl ? imgBackUrl : "/identifyCard.png"} alt="身分證件" 
+                style={{width: "100%",height: "100%"}}
                 />
               </div>
             </div>
@@ -222,13 +226,13 @@ export default function Page({ params }) {
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">身分證字號</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
+                <input type="text" className="input-layout" disabled value={kycDetails?.identitycard || ""}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">居家式托育服務登記書號</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
+                <input type="text" className="input-layout" disabled value={kycDetails?.welfarecertno || ""}/>
             </div>
           </div>
           <div style={{width: "100%",height: "1px",border: "1px solid #C1C1C1"}}></div>
@@ -236,13 +240,13 @@ export default function Page({ params }) {
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">戶籍地址</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
+                <input type="text" className="input-layout" disabled value={kycDetails?.address || ""}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">通訊地址</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.idNumber || ""}/>
+                <input type="text" className="input-layout" disabled value={kycDetails?.communicateaddress || ""}/>
             </div>
           </div>
         </div>
