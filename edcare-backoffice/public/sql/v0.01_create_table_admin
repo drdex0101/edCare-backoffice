@@ -3,6 +3,7 @@ CREATE TABLE admin (
     account VARCHAR,
     email VARCHAR,         -- 電子郵件
     cellphone VARCHAR,
+    site VARCHAR,
     is_enable BOOLEAN,
     created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 建立時間
     update_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 更新時間

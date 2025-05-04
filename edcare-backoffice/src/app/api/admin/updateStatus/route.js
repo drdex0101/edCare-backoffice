@@ -4,7 +4,7 @@ export async function PATCH(request) {
   try {
     // **解析 JSON Body**
     const body = await request.json();
-    const { is_enable, id } = body;
+    const { is_enable, id, site } = body;
 
     // **檢查必要參數**
     if (typeof is_enable !== "boolean" || !id) {
@@ -27,11 +27,12 @@ export async function PATCH(request) {
     const query = `
       UPDATE admin
       SET is_enable = $1,
+          site = $2,
           update_ts = NOW()
-      WHERE id = $2
+      WHERE id = $3
       RETURNING *;
     `;
-    const values = [is_enable, id];
+    const values = [is_enable, site, id];
     const result = await client.query(query, values);
 
     // **關閉連線**
