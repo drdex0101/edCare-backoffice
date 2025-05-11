@@ -9,6 +9,7 @@ const pool = new Pool({
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
+    const id = parseInt(searchParams.get("id"), 10);
     const page = parseInt(searchParams.get("page"), 10) || 1;
     const pageSize = 5;
     const offset = (page - 1) * pageSize;
@@ -29,11 +30,12 @@ export async function GET(request) {
     LEFT JOIN nanny n ON p.nanny_id::bigint = n.id
     LEFT JOIN member m ON n.memberid::bigint = m.id
     LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
+    WHERE o.id = $1::bigint
     ORDER BY o.id DESC
-    LIMIT $1::integer OFFSET $2::integer
+    LIMIT $2::integer OFFSET $3::integer
   `;
 
-    const values = [pageSize, offset];
+    const values = [id, pageSize, offset];
 
     const countQuery = `SELECT COUNT(*) FROM orderinfo as o`;
 

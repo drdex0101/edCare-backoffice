@@ -1,6 +1,5 @@
 import { Pool } from "pg";
 
-// ✅ 使用 `Pool` 提高效能，減少連線開銷
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
   ssl: { rejectUnauthorized: false },
@@ -8,63 +7,87 @@ const pool = new Pool({
 
 export async function PATCH(request) {
   try {
-    // **解析 JSON Body**
     const body = await request.json();
-    const { status, id } = body;
+    const { status, id, nannyId } = body; // ← 加入 `nannyId`
 
-    // ✅ 驗證 `id` 和 `status`
     if (!id || isNaN(id) || id <= 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid ID" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    if (!status || typeof status !== "string") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid status" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ success: false, error: "Invalid ID" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // ✅ 取得資料庫連線
+    if (!status || typeof status !== "string") {
+      return new Response(JSON.stringify({ success: false, error: "Invalid status" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!nannyId || isNaN(nannyId)) {
+      return new Response(JSON.stringify({ success: false, error: "Invalid nannyId" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const client = await pool.connect();
 
-    // ✅ 執行更新查詢
-    const query = `
-      UPDATE pair
-      SET status = $1,
-          created_time = NOW()
-      WHERE id = $2
-      RETURNING id, status, created_time;
-    `;
-    const values = [status, id];
-    const result = await client.query(query, values);
+    try {
+      await client.query("BEGIN"); // ✅ 交易開始
 
-    // ✅ 釋放連線回到連線池
-    client.release();
+      // 1. 更新 orderinfo
+      const updateOrderQuery = `
+        UPDATE orderinfo
+        SET status = $1,
+            created_ts = NOW(),
+            update_ts = NOW(),
+            nannyid = $2
+        WHERE id = $3
+        RETURNING id, status, created_ts, update_ts, nannyid;
+      `;
+      const orderRes = await client.query(updateOrderQuery, [status, nannyId, id]);
 
-    // ✅ 檢查是否有更新
-    if (result.rowCount === 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: "找不到對應的 order" }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
-      );
+      // 2. 將對應的 pair 設為 ongoing
+      const updatePairQuery = `
+        UPDATE pair
+        SET status = 'onGoing'
+        WHERE order_id = $1 AND nanny_id = $2;
+      `;
+      await client.query(updatePairQuery, [id, nannyId]);
+
+      // 3. 刪除其他非此配對的 pair 記錄
+      const deleteOtherPairsQuery = `
+        DELETE FROM pair
+        WHERE order_id = $1 AND nanny_id <> $2;
+      `;
+      await client.query(deleteOtherPairsQuery, [id, nannyId]);
+
+      await client.query("COMMIT"); // ✅ 提交交易
+
+      client.release();
+
+      if (orderRes.rowCount === 0) {
+        return new Response(
+          JSON.stringify({ success: false, error: "找不到對應的訂單" }),
+          { status: 404, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(JSON.stringify({ success: true, order: orderRes.rows[0] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (innerError) {
+      await client.query("ROLLBACK"); // ❌ 發生錯誤時回滾
+      throw innerError;
     }
-
-    console.log("KYC updated successfully:", result.rows[0]);
-
-    // ✅ 成功回應
-    return new Response(
-      JSON.stringify({ success: true, order: result.rows[0] }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
 
   } catch (error) {
     console.error("Database error:", error.message || error);
-
-    return new Response(
-      JSON.stringify({ success: false, error: "Database error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: false, error: "Database error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

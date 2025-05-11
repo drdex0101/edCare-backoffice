@@ -30,9 +30,11 @@ export async function GET(request) {
     // ✅ 使用 `Pool` 取得資料庫連線
     const client = await pool.connect();
 
-    // ✅ 使用 `LIMIT 1` 提升查詢效能
-    const query = `SELECT * FROM kyc_info WHERE id = $1 LIMIT 1;`;
-    const result = await client.query(query, [id]);
+    // Modify the SELECT clause to get all columns from kyc_info (k.*) and only job from member (m.job)
+    const query = `SELECT k.*, m.job,m.line_id
+     FROM kyc_info as k LEFT JOIN member as m ON k.id = m.kyc_id::bigint WHERE k.id = $1 LIMIT 1;`;
+    const values = [id];
+    const result = await client.query(query, values);
 
     // ✅ 釋放連線回到池中，避免不必要的 `client.end()`
     client.release();

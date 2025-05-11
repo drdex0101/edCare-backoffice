@@ -74,32 +74,37 @@ export default function Page({ params }) {
   
     const updateStatus = async (id, status,job,line_id) => {
       try {
-        const response =fetch(`/api/kyc/updateStatus`, {
+        const response = await fetch(`/api/kyc/updateStatus`, {
             method: 'PATCH',
             body: JSON.stringify({ status, id }),
         });
-    
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        if (status == 'approve') {
-          if (status == "approve") {
-            if (job == "保母") {
-              changeRichMenu("richmenu-3adb9975aee0c695e08c99ef572d4008",id);
-            } else {
-              changeRichMenu("richmenu-48f0c719cfbfc92dd6ea5b8ce10b6cb3",id);
-            }
-          }
+    
+        const data = await response.json(); // 正確解析 response body
+    
+        if (!data.success) {
+          throw new Error('Backend returned failure');
         }
+    
+        // 成功執行後續邏輯
+        if (job === "保母") {
+          changeRichMenu("richmenu-3adb9975aee0c695e08c99ef572d4008", line_id);
+        } else {
+          changeRichMenu("richmenu-48f0c719cfbfc92dd6ea5b8ce10b6cb3", line_id);
+        }
+        swal.fire({
+          title: '完成',
+          text: '審核完成',
+          icon: 'success',
+        });
       } catch (err) {
         console.error('Error updating status:', err);
         setError(err.message);
       }
     };
 
-    useEffect(() => {
-        console.log('KYC Details:', kycDetails); // Log to check if state updates
-    }, [kycDetails]);
 
     const convertToTaiwanDate = (dateString) => {
         const date = new Date(dateString);
@@ -229,12 +234,13 @@ export default function Page({ params }) {
                 <input type="text" className="input-layout" disabled value={kycDetails?.identitycard || ""}/>
             </div>
           </div>
+          {kycDetails?.job === "保母" &&
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">居家式托育服務登記書號</span>
                 <input type="text" className="input-layout" disabled value={kycDetails?.welfarecertno || ""}/>
             </div>
-          </div>
+          </div>}
           <div style={{width: "100%",height: "1px",border: "1px solid #C1C1C1"}}></div>
           <span className="details-content-main-font">聯絡方式</span>
           <div className="content-info">

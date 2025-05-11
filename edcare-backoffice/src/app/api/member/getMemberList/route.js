@@ -13,6 +13,7 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page"), 10) || 1;
     const search = searchParams.get("search")?.trim() || "";
     const job = searchParams.get("job") || "";
+    const status = searchParams.get("status") || "";
     // ✅ 設定每頁顯示筆數
     const pageSize = 5;
     const offset = (page - 1) * pageSize;
@@ -22,8 +23,9 @@ export async function GET(request) {
 
     // ✅ 改進 SQL 查詢效能
     let query = `
-      SELECT id,account,cellphone,email,job,created_ts
-      FROM member m
+      SELECT m.id,m.account,m.cellphone,m.email,m.job,m.created_ts,k.*,m.line_id
+      FROM member m 
+      LEFT JOIN kyc_info k ON m.kyc_id::bigint = k.id
       WHERE 1=1
     `;
     let values = [];
@@ -43,6 +45,20 @@ export async function GET(request) {
       query += ` AND m.job != $${values.length + 1}`;
       values.push('保母');
       countValues.push('保母');
+    }
+
+    if (status === 'approve') {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push('approve');
+      countValues.push('approve');
+    } else if (status === 'fail') {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push('fail');
+      countValues.push('fail');
+    } else if (status === 'pending') {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push('pending');
+      countValues.push('pending');
     }
 
     query += ` ORDER BY m.id DESC LIMIT $${values.length + 1}::integer OFFSET $${values.length + 2}::integer`;
@@ -66,7 +82,7 @@ export async function GET(request) {
     // ✅ 同時取得 `kycList` 和 `totalItems`
     const [dataResult, countResult] = await Promise.all([
       client.query(query, values),
-      client.query(countQuery, countValues),
+      client.query(countQuery, countQueryValues), // <-- 用正確的 countQueryValues
     ]);
 
     // ✅ 釋放連線回到連線池

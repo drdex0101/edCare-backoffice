@@ -2,119 +2,112 @@
 import "../base/css/table.css";
 import "../../app/order/order.css";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+export default function Table({ orderList, columnNames }) {
+  const router = useRouter();
+  const [openModal, setOpenModal] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [email, setEmail] = useState("");
+  const [account, setAccount] = useState("");
+  const [cellphone, setCellphone] = useState("");
+  const [isEnable, setIsEnable] = useState(false);
 
-export default function Table({orderList, columnNames}) {
-    const [openModal, setOpenModal] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [orderDetails, setOrderDetails] = useState(null);
-    const [email, setEmail] = useState('');
-    const [account, setAccount] = useState('');
-    const [cellphone, setCellphone] = useState('');
-    const [isEnable, setIsEnable] = useState(false);
-    const [editId, setEditId] = useState(null);
-    const [editIsEnable, setEditIsEnable] = useState(false);
+  const goToDetail = (order_id) => {
+    router.push(`/order/${order_id}`);
+  };
 
-    const handleMatchSuccess = async (id) => {
-        const response = await fetch('/api/order/updateStatus', {
-            method: 'PATCH',
-            body: JSON.stringify({ id: id, status: 'onGoing' }),
-        });
-        location.reload();
-    }
+  const [nannyNameMap, setNannyNameMap] = useState({});
 
-    const handleMatchReject = async (id) => {
-        const response = await fetch('/api/order/updateStatus', {
-            method: 'PATCH',
-            body: JSON.stringify({ id: id, status: 'create' }),
-        });
-        location.reload();
-    }
-    useEffect(() => {
-        if (isEditModalOpen && orderDetails) {
-            setEmail(orderDetails.email || "");
-            setAccount(orderDetails.account || "");
-            setCellphone(orderDetails.cellphone || "");
-            setIsEnable(orderDetails.isEnable || false);
-        }
-    }, [isEditModalOpen]);
+  useEffect(() => {
+    const fetchNannyNames = async () => {
+      const newMap = {};
+      const idsToFetch = orderList
+        .map((o) => o.nannyid)
+        .filter((id) => id && !(id in nannyNameMap)); // 只 fetch 還沒載入過的 id
 
+      const fetches = idsToFetch.map(async (id) => {
+        const res = await fetch(`/api/order/getNannyName?nannyId=${id}`);
+        const data = await res.json();
+        newMap[id] = data.nannyName;
+      });
 
+      await Promise.all(fetches);
 
+      setNannyNameMap((prev) => ({ ...prev, ...newMap }));
+    };
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if ((openModal || isEditModalOpen) && !event.target.closest('.order-create-modal')) {
-                setOpenModal(false);
-                setIsEditModalOpen(false);
-                setEmail("");
-                setAccount("");
-                setCellphone("");
-                setIsEnable(false);
-            }
-        };
+    fetchNannyNames();
+  }, [orderList]);
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [openModal, isEditModalOpen]);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        (openModal || isEditModalOpen) &&
+        !event.target.closest(".order-create-modal")
+      ) {
+        setOpenModal(false);
+        setIsEditModalOpen(false);
+        setEmail("");
+        setAccount("");
+        setCellphone("");
+        setIsEnable(false);
+      }
+    };
 
-    return (
-        <div className="table-main">
-            <div className="table-header">
-                {columnNames.map((columnName, index) => (
-                    <div key={index} className="table-header-column">
-                        {columnName}
-                    </div>
-                ))}
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openModal, isEditModalOpen]);
+
+  return (
+    <div className="table-main">
+      <div className="table-header">
+        {columnNames.map((columnName, index) => (
+          <div key={index} className="table-header-column">
+            {columnName}
+          </div>
+        ))}
+      </div>
+      <div className="table-body">
+        {orderList.map((order, index) => (
+          <div key={index} style={{ width: "100%", display: "flex" }}>
+            <div className="table-body-column">{order.id}</div>
+            <div className="table-body-column">
+              {order.nannyid ? nannyNameMap[order.nannyid] || "載入中..." : "尚未配對"}
             </div>
-            <div className="table-body">
-                {orderList.map((order, index) => (
-                    <div key={index} style={{width: '100%', display: 'flex'}}>
-                        <div className="table-body-column">
-                            {order.id}
-                        </div>
-                        <div className="table-body-column">
-                            {order.nanny_name}
-                        </div>
-                        <div className="table-body-column">
-                            {order.order_nickname}
-                        </div>
-                        <div className="table-body-column">
-                            <span className="order-status-success-font">
-                                {order.status === "create"
-                                    ? "媒合中"
-                                    : order.status === "matchByParent" || order.status === "matchByNanny"
-                                        ? "預約中"
-                                        : order.status === "signing"
-                                            ? "簽約中"
-                                            : order.status === "onGoing"
-                                                ? "合約履行中"
-                                                : order.status === "finish"
-                                                    ? "已完成"
-                                                    : "媒合中"}
-                            </span>
-                        </div>
-                        <div className="table-body-column">
-                            {order.created_time.slice(0, 10)}
-                        </div>
-                        <div className="table-body-column">
-                            <button className="table-body-column-button" onClick={() => handleMatchSuccess(order.id)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-lg" viewBox="0 0 16 16">
-                                  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="table-body-column">
-                            <button className="table-body-column-button" onClick={() => handleMatchReject(order.id)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
-                                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                ))}
+            <div className="table-body-column">{order.nickname}</div>
+            <div className="table-body-column">
+              <span className="order-status-success-font">
+                {order.status === "create" ? "媒合中" : "已完成"}
+              </span>
             </div>
-        </div>
-    );
+            <div className="table-body-column">
+              {order.created_ts.slice(0, 10)}
+            </div>
+            <div className="table-body-column">
+              <button
+                className="kyc-table-status-button-allow"
+                onClick={() => goToDetail(order.id)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="16"
+                  viewBox="0 0 15 16"
+                  fill="none"
+                >
+                  <path
+                    d="M0 3.55556L14.2222 3.55556V5.33333L0 5.33333L0 3.55556ZM0 8.88889H14.2222V7.11111L0 7.11111L0 8.88889ZM0 12.4444H6.22222V10.6667H0L0 12.4444ZM0 16H6.22222V14.2222H0L0 16ZM10.1422 13.4844L8.88889 12.2222L7.63556 13.4756L10.1422 16L14.2222 11.9289L12.96 10.6667L10.1422 13.4844ZM0 0L0 1.77778L14.2222 1.77778V0L0 0Z"
+                    fill="#097201"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -1,20 +1,27 @@
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-  const { line_id, richMenuId } = request.body;
+  const body = await request.json();
+  const { kycId, richMenuId } = body;
 
   try {
-    // 綁定 Rich Menu 到用戶
-    const response = await fetch(`https://api.line.me/v2/bot/user/${line_id}/richmenu/${richMenuId}`, {
+    const res = await fetch(`https://api.line.me/v2/bot/user/${kycId}/richmenu/${richMenuId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,  // 確保 Token 正確
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CHANNEL_ACCESS_TOKEN}`,
         'Content-Type': 'application/json'
       }
     });
-    
-    return res.status(200).json({ message: 'Rich Menu changed successfully!' });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Line API Error:', errText);
+      return NextResponse.json({ error: 'Failed to change Rich Menu' }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'Rich Menu changed successfully!' });
   } catch (error) {
-    console.error('Error changing Rich Menu:', error.response?.data || error.message);
-    return res.status(500).json({ error: 'Failed to change Rich Menu' });
+    console.error('Fetch Error:', error.message);
+    return NextResponse.json({ error: 'Server error while changing Rich Menu' }, { status: 500 });
   }
 }

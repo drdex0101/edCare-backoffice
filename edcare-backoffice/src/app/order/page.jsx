@@ -8,7 +8,7 @@ export default function Page() {
     const [searchTerm, setSearchTerm] = useState(""); // 搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
     const [totalItems, setTotalItems] = useState(0); // 總筆數
-    const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','媒合通過','拒絕媒合'];
+    const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','詳情'];
     // 取得 order 列表
     const getorderList = async () => {
         try {
@@ -30,7 +30,6 @@ export default function Page() {
             setorderList([]);
         }
     };
-
     // 當 `searchTerm` 或 `currentPage` 變化時，重新獲取資料
     useEffect(() => {
         getorderList();

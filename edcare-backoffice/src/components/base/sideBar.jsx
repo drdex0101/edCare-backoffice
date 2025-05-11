@@ -144,46 +144,6 @@ export default function SideBar() {
             </Link>
           </>
         )}
-        <div 
-          className={`frame-layout ${activeItem === '審核' ? 'active' : ''}`}
-          onClick={() => handleItemClick('審核')}
-        >
-            <div className="frame-layout-header-combine">
-                <div className={`frame-layout-header ${activeItem === '審核' ? 'active' : ''}`}></div>
-                <div className="frame-layout-header-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 17" fill="none">
-                    <path d="M0 4.06337H14.2222V5.84115H0V4.06337ZM0 9.3967H14.2222V7.61892H0V9.3967ZM0 12.9523H6.22222V11.1745H0V12.9523ZM0 16.5078H6.22222V14.73H0V16.5078ZM10.1422 13.9923L8.88889 12.73L7.63556 13.9834L10.1422 16.5078L14.2222 12.4367L12.96 11.1745L10.1422 13.9923ZM0 0.507812V2.28559H14.2222V0.507812H0Z" 
-                    fill={activeItem === '審核' ? '#EB9A38' : '#808080'}/>
-                    </svg>
-                </div>
-                <div className={`frame-layout-header-text ${activeItem === '審核' ? 'active' : ''}`}>
-                審核
-                </div>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="11" viewBox="0 0 7 11" fill="none">
-            <path d="M0 9.33281L3.81667 5.50781L0 1.68281L1.175 0.507812L6.175 5.50781L1.175 10.5078L0 9.33281Z" fill="#808080"/>
-            </svg>
-        </div>
-        {showKYC && (
-            <Link
-            href="/kyc"
-            className={`frame-layout ${activeItem === 'KYC審核' ? 'active' : ''}`}
-            onClick={() => handleItemClick('KYC審核')} // ✅ 確保 `activeItem` 變更
-          >
-            <div className="frame-layout-header-combine">
-              <div className={`frame-layout-header ${activeItem === 'KYC審核' ? 'active' : ''}`}></div>
-              <div className="frame-layout-header-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
-                  <path d="M5.00039 8.10625C6.98862 8.10625 8.60039 6.49448 8.60039 4.50625C8.60039 2.51802 6.98862 0.90625 5.00039 0.90625C3.01217 0.90625 1.40039 2.51802 1.40039 4.50625C1.40039 6.49448 3.01217 8.10625 5.00039 8.10625Z" 
-                    fill={activeItem === 'KYC審核' ? '#EB9A38' : '#808080'}/>
-                </svg>
-              </div>
-              <div className={`frame-layout-header-text ${activeItem === 'KYC審核' ? 'active' : ''}`}>
-                KYC審核
-              </div>
-            </div>
-          </Link>
-        )}
       </div>
   );
 }

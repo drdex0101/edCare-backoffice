@@ -9,45 +9,32 @@ const pool = new Pool({
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page"), 10) || 1;
-    const pageSize = 5;
-    const offset = (page - 1) * pageSize;
+    const nannyId = searchParams.get("nannyId");
 
     const client = await pool.connect();
 
     // ✅ 主查詢，JOIN member → kyc、orderinfo
     const query = `
     SELECT 
-      o.*
-    FROM orderinfo o
-    LEFT JOIN (
-      SELECT DISTINCT ON (order_id)
-        *
-      FROM pair
-      ORDER BY order_id, created_time DESC
-    ) p ON p.order_id::bigint = o.id
-    LEFT JOIN nanny n ON p.nanny_id::bigint = n.id
+      k.name AS nanny_name
+    FROM nanny n
     LEFT JOIN member m ON n.memberid::bigint = m.id
     LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
-    ORDER BY o.id DESC
-    LIMIT $1::integer OFFSET $2::integer
+    WHERE n.id = $1
   `;
 
-    const values = [pageSize, offset];
+    const values = [nannyId];
 
-    const countQuery = `SELECT COUNT(*) FROM orderinfo as o`;
-
-    const [dataResult, countResult] = await Promise.all([
+    const [dataResult] = await Promise.all([
       client.query(query, values),
-      client.query(countQuery),
     ]);
 
     client.release();
 
-    const totalItems = parseInt(countResult.rows[0]?.count || "0", 10);
+    const totalItems = parseInt(dataResult.rows[0]?.count || "0", 10);
 
     return NextResponse.json(
-      { success: true, orderList: dataResult.rows, totalItems },
+      { success: true, nannyName: dataResult.rows[0]?.nanny_name || "無資料" },
       { status: 200 }
     );
   } catch (error) {
