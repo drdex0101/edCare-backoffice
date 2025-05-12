@@ -48,7 +48,7 @@ export async function PATCH(request) {
       `;
       const orderRes = await client.query(updateOrderQuery, [status, nannyId, id]);
 
-      // 2. 將對應的 pair 設為 ongoing
+      // 2. 將對應的 pair 設為 onGoing
       const updatePairQuery = `
         UPDATE pair
         SET status = 'onGoing'

@@ -237,7 +237,7 @@ export default function Page({ params }) {
           {kycDetails?.job === "保母" &&
           <div className="content-info">
             <div className="combine-layout">
-                <span className="details-content-font">居家式托育服務登記書號</span>
+                <span className="details-content-font">保母登記證號（證書上的發文字號）</span>
                 <input type="text" className="input-layout" disabled value={kycDetails?.welfarecertno || ""}/>
             </div>
           </div>}

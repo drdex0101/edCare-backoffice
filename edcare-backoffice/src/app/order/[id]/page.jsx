@@ -188,7 +188,7 @@ export default function Page({ params }) {
               value={
                 kycDetails?.care_type === "suddenly"
                   ? "臨時托育"
-                  : kycDetails?.care_type === "longTerm"
+                  : kycDetails?.care_type === "longTern"
                   ? "長期托育"
                   : "無資料"
               }

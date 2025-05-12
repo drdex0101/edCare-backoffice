@@ -7,17 +7,15 @@ const pool = new Pool({
 });
 
 export async function GET(request) {
+  const client = await pool.connect(); // ✅ 要先宣告在外層
   try {
     const { searchParams } = new URL(request.url);
     const order_id = searchParams.get("id");
 
-    const client = await pool.connect();
-
-    // ✅ 先查出該 order 是否有指定 nannyid
     const orderQuery = `SELECT nannyid FROM orderinfo WHERE id = $1`;
     const orderResult = await client.query(orderQuery, [order_id]);
-    const hasNannyId = !!orderResult.rows[0]?.nannyid;
 
+    const hasNannyId = !!orderResult.rows[0]?.nannyid;
 
     return NextResponse.json(
       { success: true, hasNannyId },
@@ -30,6 +28,9 @@ export async function GET(request) {
       { success: false, error: error.message || "Database error" },
       { status: 500 }
     );
+  } finally {
+    client.release(); // ✅ 確保不論成功或失敗都釋放連線
   }
 }
+
 

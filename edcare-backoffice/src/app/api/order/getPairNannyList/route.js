@@ -19,10 +19,11 @@ export async function GET(request) {
     // ✅ 先查出該 order 是否有指定 nannyid
     const orderQuery = `SELECT nannyid FROM orderinfo WHERE id = $1`;
     const orderResult = await client.query(orderQuery, [order_id]);
-    const hasNannyId = !!orderResult.rows[0]?.nannyid;
-
-    const pairStatus = hasNannyId ? "ongoing" : "signing";
-
+    const hasNannyId = orderResult.rows[0]?.nannyid;
+    console.log(hasNannyId);
+    // Set pairStatus to "ongoing" if hasNannyId is null, otherwise "signing"
+    const pairStatus = hasNannyId === null ? "signing" : "onGoing";
+    console.log(pairStatus);
     const query = `
       SELECT 
         p.id as pair_id,
