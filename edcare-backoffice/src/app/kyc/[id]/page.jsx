@@ -1,6 +1,7 @@
 "use client";
 import "./details.css";
 import React, { useState, useEffect, use } from "react";
+import { approvedNotify,failedNotify } from '../../util/notify';
 
 import Link from "next/link";
 export default function Page({ params }) {
@@ -86,6 +87,12 @@ export default function Page({ params }) {
     
         if (!data.success) {
           throw new Error('Backend returned failure');
+        }
+
+        if (status === "approve") {
+          approvedNotify(line_id);
+        } else {
+          failedNotify(line_id);
         }
     
         // 成功執行後續邏輯
