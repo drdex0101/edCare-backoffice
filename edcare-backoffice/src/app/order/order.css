@@ -51,6 +51,27 @@
     padding-left: 30px;
 }
 
+.order-table-search-input-select {
+    display: flex;
+    width: 240px;
+    padding: 8px 12px;
+}
+
+.order-select-font {
+    color: var(--Grey-Grey-800, #626262);
+    font-family: "Noto Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px; /* 133.333% */
+}
+
+.order-select-font-option {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
 .input-wrapper {
     position: relative;
     display: inline-block;

@@ -8,12 +8,15 @@ export default function Page() {
     const [searchTerm, setSearchTerm] = useState(""); // 搜尋關鍵字
     const [currentPage, setCurrentPage] = useState(1); // 分頁
     const [totalItems, setTotalItems] = useState(0); // 總筆數
+    const [filterStatus, setFilterStatus] = useState("all"); // 篩選狀態
+    const [period, setPeriod] = useState("all"); // 篩選時間
+
     const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','詳情'];
     // 取得 order 列表
     const getorderList = async () => {
         try {
             const response = await fetch(
-                `/api/order/getOrderList?page=${currentPage}`,
+                `/api/order/getOrderList?page=${currentPage}&filterStatus=${filterStatus}&period=${period}`,
                 { method: "GET" }
             );
             const data = await response.json();
@@ -33,13 +36,24 @@ export default function Page() {
     // 當 `searchTerm` 或 `currentPage` 變化時，重新獲取資料
     useEffect(() => {
         getorderList();
-    }, [searchTerm, currentPage]); // ✅ 監聽 `searchTerm` & `currentPage`
+    }, [searchTerm, currentPage, filterStatus, period]); // ✅ 監聽 `searchTerm` & `currentPage`
 
     // 搜尋時重置分頁
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1); // ✅ 重新查詢時重置為第 1 頁
     };
+
+    const handleStatusChange = (e) => {
+        setFilterStatus(e.target.value);
+        setCurrentPage(1);
+      };
+
+      const handlePeriodChange = (e) => {
+        setPeriod(e.target.value);
+        setCurrentPage(1);
+      };
+      
 
     return (
       <div className="order-main">
@@ -61,6 +75,29 @@ export default function Page() {
                         </svg>
                     </div>
                 </div>
+                <div className="order-select-font-option">
+                    <span className="order-select-font">狀態篩選</span>
+                    <select
+                        className="order-table-search-input"
+                        onChange={handleStatusChange}
+                    >
+                        <option value="all">全部</option>
+                        <option value="onGoing">已完成</option>
+                        <option value="create">媒合中</option>
+                    </select>
+                </div>
+                <div className="order-select-font-option">
+                    <span className="order-select-font">時間篩選</span>
+                <select
+                    className="order-table-search-input"
+                    onChange={handlePeriodChange}
+                >
+                    <option value="all">全部</option>
+                    <option value="1month">一個月</option>
+                    <option value="3month">三個月</option>
+                    <option value="6month">六個月</option>
+                </select>
+               </div>
             </div>
             {orderList.length > 0 ? (
                 <>
