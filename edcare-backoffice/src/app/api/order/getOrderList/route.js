@@ -15,6 +15,7 @@ export async function GET(request) {
 
     let filterStatus = searchParams.get("filterStatus") || "all";
     let period = searchParams.get("period") || "all";
+    const searchTerm = searchParams.get("searchTerm") || "";
 
     let statusParam = null;
     if (filterStatus === "onGoing" || filterStatus === "signing") {
@@ -49,11 +50,12 @@ export async function GET(request) {
       LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
       WHERE ($1::text IS NULL OR o.status = $1)
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
+        AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
       ORDER BY o.id DESC
-      LIMIT $3 OFFSET $4
+      LIMIT $4 OFFSET $5
     `;
 
-    const values = [statusParam, periodDate, pageSize, offset];
+    const values = [statusParam, periodDate, searchTerm, pageSize, offset];
 
     const countQuery = `
       SELECT COUNT(*) FROM orderinfo o

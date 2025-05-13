@@ -16,7 +16,7 @@ export default function Page() {
     const getorderList = async () => {
         try {
             const response = await fetch(
-                `/api/order/getOrderList?page=${currentPage}&filterStatus=${filterStatus}&period=${period}`,
+                `/api/order/getOrderList?page=${currentPage}&filterStatus=${filterStatus}&period=${period}&searchTerm=${searchTerm}`,
                 { method: "GET" }
             );
             const data = await response.json();
