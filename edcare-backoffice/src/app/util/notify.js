@@ -136,11 +136,6 @@ export async function appointmentNotifyParent(lineId, orderId) {
         contents: [
           {
             type: "text",
-            text: `訂單 ID：${orderId}`,
-            size: "md",
-          },
-          {
-            type: "text",
             text: "📢 您的預約已有保母願意接單。\n\n為確保服務順利進行，請您盡快登入平台確認預約詳情。",
             wrap: true,
           },
@@ -198,11 +193,6 @@ export async function appointmentNotifyNanny(lineId, orderId) {
         layout: "vertical",
         spacing: "md",
         contents: [
-          {
-            type: "text",
-            text: `訂單 ID：${orderId}`,
-            size: "md",
-          },
           {
             type: "text",
             text: "📢 有家長已選擇您！\n\n請登入平台查看預約詳情與服務時間安排。",
@@ -264,11 +254,6 @@ export async function matchNotify(lineId, orderId, type) {
         contents: [
           {
             type: "text",
-            text: `訂單 ID：${orderId}`,
-            size: "md",
-          },
-          {
-            type: "text",
             text: "🎉 訂單已成立，媒合成功！\n\n接下來將由居託中心協助聯繫與安排簽約事宜，請留意近期的來電。感謝您的信任與支持！",
             wrap: true,
           },
@@ -288,9 +273,9 @@ export async function matchNotify(lineId, orderId, type) {
               label: "前往平台",
               uri:
                 type === "parent"
-                  ? "https://edcare-line-bot2.vercel.app/parent/matching"
+                  ? "https://edcare-line-bot2.vercel.app/parent/history"
                   : type === "nanny"
-                  ? "https://edcare-line-bot2.vercel.app/nanny/matching"
+                  ? "https://edcare-line-bot2.vercel.app/nanny/history"
                   : null,
             },
           },

@@ -76,6 +76,8 @@ export default function Page({ params }) {
       Swal.fire({
         title: "簽約成功",
         icon: "success",
+      }).then(() => {
+        window.location.reload();
       });
     } catch (err) {
       console.error("Error updating status:", err);
