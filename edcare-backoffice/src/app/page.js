@@ -4,6 +4,7 @@ import "./home.css";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import Swal from "sweetalert2";
 export default function Home() {
   const [email, setEmail] = useState(""); // ✅ 儲存輸入的 Email
   const [password, setPassword] = useState(""); // ✅ 儲存輸入的密碼
@@ -26,12 +27,18 @@ export default function Home() {
       });
 
       const data = await response.json();
-      if (response.ok) {
+      console.log(data.success);
+      if (data.success) {
         Cookies.set("authToken", data.token, { expires: 7 }); // ✅ 設定 `authToken` (7 天有效)
         Cookies.set("email", email, { expires: 7 }); // ✅ 存 email
+        Cookies.set("role", data.role, { expires: 7 }); // ✅ 存 role
         router.push("/dashboard"); // ✅ 登入成功導向到 `dashboard`
       } else {
-        setError(data.message || "登入失敗，請檢查您的帳號和密碼");
+        Swal.fire({
+          icon: "error",
+          title: "登入失敗",
+          text: "請檢查您的帳號和密碼",
+        });
       }
     } catch (err) {
       console.error("Login Error:", err);

@@ -2,8 +2,8 @@ import { Client } from 'pg';
 
 export async function POST(request) {
   if (request.method === 'POST') {
-    const { account, email, cellphone, is_enable, site } = await request.json();
-    console.log('req.body', account, email, cellphone, is_enable, site);
+    const { account, email, cellphone, is_enable, site, password, role } = await request.json();
+    console.log('req.body', account, email, cellphone, is_enable, site, password, role);
     // 創建 PostgreSQL 客戶端
     const client = new Client({
       connectionString: process.env.POSTGRES_URL,
@@ -19,9 +19,9 @@ export async function POST(request) {
       // 使用參數化查詢插入資料
       const query = `
         INSERT INTO admin (
-          account, email, cellphone, is_enable, site
+          account, email, cellphone, is_enable, site, password, role
       ) VALUES (
-          $1, $2, $3, $4, $5
+          $1, $2, $3, $4, $5, $6, $7
         )
         RETURNING *;
       `;
@@ -30,7 +30,9 @@ export async function POST(request) {
         email, 
         cellphone, 
         is_enable,
-        site
+        site,
+        password,
+        role
       ];
       const result = await client.query(query, values);
 

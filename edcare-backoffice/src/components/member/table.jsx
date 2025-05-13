@@ -73,7 +73,6 @@ export default function Table({memberList, columnNames}) {
     }
 
     const handleEnableChange = (e) => {
-        alert(isEnable);
         setIsEnable(!isEnable);
     }
 

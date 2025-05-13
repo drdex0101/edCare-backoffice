@@ -15,7 +15,7 @@ export default function Table({ adminList, columnNames }) {
   const [isEnable, setIsEnable] = useState(false);
   const [editId, setEditId] = useState(null);
   const [editIsEnable, setEditIsEnable] = useState(false);
-
+  const [password, setPassword] = useState("");
   const getAdminDetails = async () => {
     if (!editId) {
       console.error("editId is undefined, aborting request");
@@ -53,6 +53,7 @@ export default function Table({ adminList, columnNames }) {
         cellphone: cellphone,
         is_enable: isEnable,
         site: site,
+        password: password,
       }),
     });
     const data = await response.json();
@@ -97,6 +98,7 @@ export default function Table({ adminList, columnNames }) {
       setCellphone(adminDetails.cellphone || "");
       setSite(adminDetails.site || "");
       setIsEnable(adminDetails.isEnable || false);
+      setPassword(adminDetails.password || "");
     }
   }, [isEditModalOpen]);
 
@@ -113,7 +115,6 @@ export default function Table({ adminList, columnNames }) {
   };
 
   const handleEnableChange = (e) => {
-    alert(isEnable);
     setIsEnable(!isEnable);
   };
 
@@ -121,6 +122,10 @@ export default function Table({ adminList, columnNames }) {
     const value = e.target.value;
     setSite(value);
     console.log(value); // 直接使用新值
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
   };
 
   useEffect(() => {
@@ -159,6 +164,7 @@ export default function Table({ adminList, columnNames }) {
           <div key={index} style={{ width: "100%", display: "flex" }}>
             <div className="table-body-column">{admin.id}</div>
             <div className="table-body-column">{admin.account}</div>
+            <div className="table-body-column">{admin.password}</div>
             <div className="table-body-column">{admin.email}</div>
             <div className="table-body-column">{admin.cellphone}</div>
             <div className="table-body-column">{admin.site}</div>
@@ -247,6 +253,12 @@ export default function Table({ adminList, columnNames }) {
                   value={account}
                   onChange={handleAccountChange}
                 />
+              </div>
+              <div className="admin-create-modal-content-item">
+                <span className="admin-create-modal-content-item-title">
+                  密碼
+                </span>
+                <input type="text" className="admin-create-modal-content-item-input" placeholder="請輸入密碼" value={password} onChange={handlePasswordChange} />
               </div>
               <div className="admin-create-modal-content-item">
                 <span className="admin-create-modal-content-item-title">

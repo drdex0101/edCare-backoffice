@@ -17,9 +17,11 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState(""); // 存儲搜尋關鍵字
   const [currentPage, setCurrentPage] = useState(1); // 分頁
   const [totalItems, setTotalItems] = useState(0);
+  const [password, setPassword] = useState("");
   const columnNames = [
     "No.",
     "名稱",
+    "密碼",
     "電子信箱",
     "聯絡電話",
     "服務處單位",
@@ -82,6 +84,10 @@ export default function Page() {
     site: z.string().min(1, { message: "請選擇單位" }),
   });
 
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
   const createAdmin = async () => {
     const requestBody = {
       email,
@@ -89,6 +95,8 @@ export default function Page() {
       cellphone,
       is_enable: isEnable,
       site,
+      password,
+      role: "member",
     };
 
     const validation = adminSchema.safeParse(requestBody);
@@ -235,6 +243,12 @@ export default function Page() {
                   value={account}
                   onChange={handleAccountChange}
                 />
+              </div>
+              <div className="admin-create-modal-content-item">
+                <span className="admin-create-modal-content-item-title">
+                  密碼
+                </span>
+                <input type="text" className="admin-create-modal-content-item-input" placeholder="請輸入密碼" value={password} onChange={handlePasswordChange} />
               </div>
               <div className="admin-create-modal-content-item">
                 <span className="admin-create-modal-content-item-title">

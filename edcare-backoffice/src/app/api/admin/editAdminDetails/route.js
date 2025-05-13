@@ -4,10 +4,10 @@ export async function PATCH(request) {
   try {
     // **解析 JSON Body**
     const body = await request.json();
-    const { email, account, cellphone, is_enable, id } = body;
+    const { email, account, cellphone, is_enable, id, password } = body;
 
     // **檢查必要參數**
-    if (typeof is_enable !== "boolean" || !id || !email || !account || !cellphone) {
+    if (typeof is_enable !== "boolean" || !id || !email || !account || !cellphone || !password) {
       return new Response(
         JSON.stringify({ success: false, error: "缺少必要欄位或參數格式錯誤" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -30,11 +30,12 @@ export async function PATCH(request) {
           account = $2,
           cellphone = $3,
           is_enable = $4,
-          update_ts = NOW()
-      WHERE id = $5
+          password = $5,
+          updated_ts = NOW()
+      WHERE id = $6
       RETURNING *;
     `;
-    const values = [email, account, cellphone, is_enable, id];
+    const values = [email, account, cellphone, is_enable, password, id];
     const result = await client.query(query, values);
 
     // **關閉連線**

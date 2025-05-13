@@ -4,10 +4,12 @@ import Image from "next/image";
 import "./css/sideBar.css";
 import { useState } from "react";
 import Link from "next/link";
+import Cookies from 'js-cookie';
 export default function SideBar() {
     const [activeItem, setActiveItem] = useState('儀表板');
     const [showKYC, setShowKYC] = useState(false);
     const [showMember, setShowMember] = useState(false);
+    const [role, setRole] = useState(Cookies.get('role'));
     const handleItemClick = (itemName) => {
     setActiveItem(itemName);
     if (itemName === '審核') {
@@ -49,8 +51,9 @@ export default function SideBar() {
             </div>
         </Link>
 
-        <Link href="/admin" className={`frame-layout ${activeItem === '權限管理' ? 'active' : ''}`} onClick={() => handleItemClick('權限管理')}>
-            <div className="frame-layout-header-combine">
+        {role === 'admin' && (
+            <Link href="/admin" className={`frame-layout ${activeItem === '權限管理' ? 'active' : ''}`} onClick={() => handleItemClick('權限管理')}>
+                <div className="frame-layout-header-combine">
                 <div className={`frame-layout-header ${activeItem === '權限管理' ? 'active' : ''}`}></div>
                 <div className="frame-layout-header-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
@@ -70,6 +73,7 @@ export default function SideBar() {
                 </div>
             </div>
         </Link>
+        )}
         <Link href="/order" className={`frame-layout ${activeItem === '訂單管理' ? 'active' : ''}`} onClick={() => handleItemClick('訂單管理')}>
             <div className="frame-layout-header-combine">
                 <div className={`frame-layout-header ${activeItem === '訂單管理' ? 'active' : ''}`}></div>
