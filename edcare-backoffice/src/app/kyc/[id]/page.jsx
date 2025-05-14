@@ -97,9 +97,9 @@ export default function Page({ params }) {
     
         // 成功執行後續邏輯
         if (job === "保母") {
-          changeRichMenu("richmenu-3adb9975aee0c695e08c99ef572d4008", line_id);
+          changeRichMenu("richmenu-a82bdee5f5089b9fc85d263e0b57f682", line_id);
         } else {
-          changeRichMenu("richmenu-48f0c719cfbfc92dd6ea5b8ce10b6cb3", line_id);
+          changeRichMenu("richmenu-b76af0e6cbc1ab9e6aaa2ac7fbb2d29c", line_id);
         }
         swal.fire({
           title: '完成',

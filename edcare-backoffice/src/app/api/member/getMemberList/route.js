@@ -14,6 +14,18 @@ export async function GET(request) {
     const search = searchParams.get("search")?.trim() || "";
     const job = searchParams.get("job") || "";
     const status = searchParams.get("status") || "";
+    const role = request.cookies.get("role")?.value || "";
+    const email = request.cookies.get("email")?.value || "";
+    console.log(email);
+    let site = "";
+    const siteResult = await pool.query(
+      `SELECT site FROM admin WHERE email = $1`,
+      [email]
+    );
+    if (siteResult.rows.length > 0) {
+      site = siteResult.rows[0].site;
+    }
+
     // ✅ 設定每頁顯示筆數
     const pageSize = 5;
     const offset = (page - 1) * pageSize;
@@ -22,12 +34,23 @@ export async function GET(request) {
     const client = await pool.connect();
 
     // ✅ 改進 SQL 查詢效能
-    let query = `
-      SELECT m.id,m.account,m.cellphone,m.email,m.job,m.created_ts,k.*,m.line_id
-      FROM member m 
-      LEFT JOIN kyc_info k ON m.kyc_id::bigint = k.id
-      WHERE 1=1
-    `;
+    let query = "";
+    if (job == 0) {
+      query = `
+        SELECT m.id,m.account,m.cellphone,m.email,m.job,m.created_ts,k.*,m.line_id
+        FROM member m 
+        LEFT JOIN kyc_info k ON m.kyc_id::bigint = k.id
+        LEFT JOIN nanny n ON m.id::bigint = n.memberid::bigint
+        WHERE 1=1
+      `;
+    } else {
+      query = `
+        SELECT m.id,m.account,m.cellphone,m.email,m.job,m.created_ts,k.*,m.line_id
+        FROM member m 
+        LEFT JOIN kyc_info k ON m.kyc_id::bigint = k.id
+        WHERE 1=1
+      `;
+    }
     let values = [];
     let countValues = [];
 
@@ -37,46 +60,63 @@ export async function GET(request) {
       countValues.push(`%${search}%`);
     }
 
-    if (job === '0') {
-      query += ` AND m.job = $${values.length + 1}`;
-      values.push('保母');
-      countValues.push('保母');
-    } else if (job === '1') {
-      query += ` AND m.job != $${values.length + 1}`;
-      values.push('保母');
-      countValues.push('保母');
+    if (role === "member") {
+      if (job === "0") {
+        query += ` AND m.job = $${values.length + 1} AND n.area = $${
+          values.length + 2
+        }`;
+        values.push("保母", site);
+        console.log(values);
+        countValues.push("保母", site);
+      } else if (job === "1") {
+        query += ` AND m.job != $${values.length + 1}`;
+        values.push("保母");
+        countValues.push("保母");
+      }
+    }
+    else {
+      if (job === "0") {
+        query += ` AND m.job = $${values.length + 1}`;
+        values.push("保母");
+        countValues.push("保母");
+      } else if (job === "1") {
+        query += ` AND m.job != $${values.length + 1}`;
+        values.push("保母");
+        countValues.push("保母");
+      }
+    }
+    if (status === "approve") {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push("approve");
+      countValues.push("approve");
+    } else if (status === "fail") {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push("fail");
+      countValues.push("fail");
+    } else if (status === "pending") {
+      query += ` AND k.status = $${values.length + 1}`;
+      values.push("pending");
+      countValues.push("pending");
     }
 
-    if (status === 'approve') {
-      query += ` AND k.status = $${values.length + 1}`;
-      values.push('approve');
-      countValues.push('approve');
-    } else if (status === 'fail') {
-      query += ` AND k.status = $${values.length + 1}`;
-      values.push('fail');
-      countValues.push('fail');
-    } else if (status === 'pending') {
-      query += ` AND k.status = $${values.length + 1}`;
-      values.push('pending');
-      countValues.push('pending');
-    }
-
-    query += ` ORDER BY m.id DESC LIMIT $${values.length + 1}::integer OFFSET $${values.length + 2}::integer`;
+    query += ` ORDER BY m.id DESC LIMIT $${
+      values.length + 1
+    }::integer OFFSET $${values.length + 2}::integer`;
     values.push(pageSize, offset);
 
-    let countQuery = 'SELECT COUNT(*) FROM member m WHERE 1=1';
+    let countQuery = "SELECT COUNT(*) FROM member m WHERE 1=1";
     let countQueryValues = [];
 
     if (search) {
       countQuery += ` AND (m.account ILIKE $${countQueryValues.length + 1})`;
       countQueryValues.push(`%${search}%`);
     }
-    if (job === '0') {
+    if (job === "0") {
       countQuery += ` AND m.job = $${countQueryValues.length + 1}`;
-      countQueryValues.push('保母');
-    } else if (job === '1') {
+      countQueryValues.push("保母");
+    } else if (job === "1") {
       countQuery += ` AND m.job != $${countQueryValues.length + 1}`;
-      countQueryValues.push('保母');
+      countQueryValues.push("保母");
     }
 
     // ✅ 同時取得 `kycList` 和 `totalItems`
@@ -95,7 +135,6 @@ export async function GET(request) {
       { success: true, memberList: dataResult.rows, totalItems },
       { status: 200 }
     );
-
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(

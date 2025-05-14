@@ -13,6 +13,14 @@ export async function GET(request) {
     const pageSize = 5;
     const offset = (page - 1) * pageSize;
 
+    const email = request.cookies.get("email")?.value || "";
+    const role = request.cookies.get("role")?.value || "";
+    let site = "";
+    const siteResult = await pool.query(`SELECT site FROM admin WHERE email = $1`, [email]);
+    if (siteResult.rows.length > 0) {
+      site = siteResult.rows[0].site;
+    }
+
     let filterStatus = searchParams.get("filterStatus") || "all";
     let period = searchParams.get("period") || "all";
     const searchTerm = searchParams.get("searchTerm") || "";
@@ -36,8 +44,29 @@ export async function GET(request) {
     }
 
     const client = await pool.connect();
-
-    const query = `
+    let query = "";
+    if (role === "member") {
+      query = `
+      SELECT o.*
+      FROM orderinfo o
+      LEFT JOIN (
+        SELECT DISTINCT ON (order_id) *
+        FROM pair
+        ORDER BY order_id, created_ts DESC
+      ) p ON p.order_id::bigint = o.id
+      LEFT JOIN nanny n ON p.nanny_id::bigint = n.id
+      LEFT JOIN member m ON n.memberid::bigint = m.id
+      LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
+      WHERE ($1::text IS NULL OR o.status = $1)
+        AND ($2::timestamp IS NULL OR o.created_ts >= $2)
+        AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
+        AND n.area = $6
+      ORDER BY o.id DESC
+      LIMIT $4 OFFSET $5
+    `;
+    }
+    else {
+      query = `
       SELECT o.*
       FROM orderinfo o
       LEFT JOIN (
@@ -54,9 +83,15 @@ export async function GET(request) {
       ORDER BY o.id DESC
       LIMIT $4 OFFSET $5
     `;
-
-    const values = [statusParam, periodDate, searchTerm, pageSize, offset];
-
+    }
+    let values = [];
+    if (role === "member") {
+      values = [statusParam, periodDate, searchTerm, pageSize, offset,site];
+    }
+    else {
+      values = [statusParam, periodDate, searchTerm, pageSize, offset];
+    }
+    
     const countQuery = `
       SELECT COUNT(*) FROM orderinfo o
       WHERE ($1::text IS NULL OR o.status = $1)
