@@ -62,7 +62,9 @@ export async function GET(request) {
     if (totalItems === 0) {
       const fallbackQuery = `
         SELECT 
+          o.nickname AS order_nickname,
           o.*,
+          cd.*,
           pm.cellphone AS parent_cellphone
         FROM orderinfo o
         LEFT JOIN care_data cd ON o.caretypeid = cd.id

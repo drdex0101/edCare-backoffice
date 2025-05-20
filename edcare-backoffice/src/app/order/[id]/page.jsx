@@ -63,7 +63,7 @@ export default function Page({ params }) {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`媒合失敗，請確認是否選擇保母，或請洽詢客服`);
       }
 
       const data = await response.json();
