@@ -80,7 +80,6 @@ export default function Page({ params }) {
         window.location.reload();
       });
     } catch (err) {
-      console.error("Error updating status:", err);
       Swal.fire("錯誤", err.message || "未知錯誤", "error");
     }
   };
@@ -159,8 +158,8 @@ export default function Page({ params }) {
               onChange={(e) => setSelectedNannyId(e.target.value)}
               disabled={haveNannyId}
             >
-              {nannyList.map((nanny) => (
-                <option key={nanny.nanny_id} value={String(nanny.nanny_id)}>
+              {nannyList.map((nanny, index) => (
+                <option key={`${nanny.nanny_id}-${index}`} value={String(nanny.nanny_id)}>
                   {nanny.nanny_name}
                 </option>
               ))}
