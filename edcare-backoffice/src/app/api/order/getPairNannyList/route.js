@@ -7,6 +7,8 @@ const pool = new Pool({
 });
 
 export async function GET(request) {
+  const client = await pool.connect();
+
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page"), 10) || 1;
@@ -14,17 +16,12 @@ export async function GET(request) {
     const offset = (page - 1) * pageSize;
     const order_id = searchParams.get("id");
 
-    const client = await pool.connect();
-
-    // ✅ 先查出該 order 是否有指定 nannyid
     const orderQuery = `SELECT nannyid FROM orderinfo WHERE id = $1`;
     const orderResult = await client.query(orderQuery, [order_id]);
     const hasNannyId = orderResult.rows[0]?.nannyid;
-    console.log(hasNannyId);
-    // Set pairStatus to "ongoing" if hasNannyId is null, otherwise "signing"
     const pairStatus = hasNannyId === null ? "signing" : "onGoing";
-    console.log(pairStatus);
-    const query = `
+
+    const pairQuery = `
       SELECT 
         p.id as pair_id,
         p.nanny_id,
@@ -53,31 +50,47 @@ export async function GET(request) {
 
     const values = [order_id, pairStatus, pageSize, offset];
 
-    const countQuery = `
-      SELECT COUNT(*) FROM pair 
-      WHERE order_id = $1 AND status = $2
-    `;
+    const countQuery = `SELECT COUNT(*) FROM pair WHERE order_id = $1 AND status = $2`;
 
     const [dataResult, countResult] = await Promise.all([
-      client.query(query, values),
+      client.query(pairQuery, values),
       client.query(countQuery, [order_id, pairStatus]),
     ]);
 
-    client.release();
-
     const totalItems = parseInt(countResult.rows[0]?.count || "0", 10);
 
+    if (totalItems === 0) {
+      const fallbackQuery = `
+        SELECT 
+          o.nickname AS order_nickname,
+          o.*,
+          cd.*,
+          pm.cellphone AS parent_cellphone
+        FROM orderinfo o
+        LEFT JOIN care_data cd ON o.caretypeid = cd.id
+        LEFT JOIN member pm ON o.parentlineid = pm.line_id
+        WHERE o.id = $1
+      `;
+      const fallbackResult = await client.query(fallbackQuery, [order_id]);
+      return NextResponse.json(
+        { success: true, fallback: true, orderList: fallbackResult.rows, totalItems: 0 },
+        { status: 200 }
+      );
+    }
+
     return NextResponse.json(
-      { success: true, orderList: dataResult.rows, totalItems },
+      { success: true, fallback: false, orderList: dataResult.rows, totalItems },
       { status: 200 }
     );
-
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Database error" },
       { status: 500 }
     );
+  } finally {
+    client.release(); // ✅ 確保只在這裡 release 一次
   }
 }
+
 
