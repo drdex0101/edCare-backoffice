@@ -138,9 +138,7 @@ export default function Page({ params }) {
     return (
       <div className="details-container">
         <div className="details-header">
-            <Link href='/kyc'>
             <span className="details-header-title">KYC 審核</span>
-            </Link>
             <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
                 <path d="M0 6.5474L2.54444 3.9974L0 1.4474L0.783333 0.664062L4.11667 3.9974L0.783333 7.33073L0 6.5474Z" fill="#626262"/>
             </svg>

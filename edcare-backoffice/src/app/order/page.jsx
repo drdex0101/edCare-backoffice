@@ -10,13 +10,14 @@ export default function Page() {
     const [totalItems, setTotalItems] = useState(0); // 總筆數
     const [filterStatus, setFilterStatus] = useState("all"); // 篩選狀態
     const [period, setPeriod] = useState("all"); // 篩選時間
+    const [filterSituation, setFilterSituation] = useState("all"); // 篩選情境
 
     const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','詳情'];
     // 取得 order 列表
     const getorderList = async () => {
         try {
             const response = await fetch(
-                `/api/order/getOrderList?page=${currentPage}&filterStatus=${filterStatus}&period=${period}&searchTerm=${searchTerm}`,
+                `/api/order/getOrderList?page=${currentPage}&filterStatus=${filterStatus}&period=${period}&filterSituation=${filterSituation}&searchTerm=${searchTerm}`,
                 { method: "GET" }
             );
             const data = await response.json();
@@ -36,7 +37,7 @@ export default function Page() {
     // 當 `searchTerm` 或 `currentPage` 變化時，重新獲取資料
     useEffect(() => {
         getorderList();
-    }, [searchTerm, currentPage, filterStatus, period]); // ✅ 監聽 `searchTerm` & `currentPage`
+    }, [searchTerm, currentPage, filterStatus, period, filterSituation]); // ✅ 監聽 `searchTerm` & `currentPage`
 
     // 搜尋時重置分頁
     const handleSearchChange = (e) => {
@@ -46,6 +47,11 @@ export default function Page() {
 
     const handleStatusChange = (e) => {
         setFilterStatus(e.target.value);
+        setCurrentPage(1);
+      };
+
+      const handleSituationChange = (e) => {
+        setFilterSituation(e.target.value);
         setCurrentPage(1);
       };
 
@@ -74,6 +80,17 @@ export default function Page() {
                             <path d="M15.4351 14.0629H14.7124L14.4563 13.8159C15.3528 12.773 15.8925 11.4191 15.8925 9.94625C15.8925 6.66209 13.2304 4 9.94625 4C6.66209 4 4 6.66209 4 9.94625C4 13.2304 6.66209 15.8925 9.94625 15.8925C11.4191 15.8925 12.773 15.3528 13.8159 14.4563L14.0629 14.7124V15.4351L18.6369 20L20 18.6369L15.4351 14.0629V14.0629ZM9.94625 14.0629C7.66838 14.0629 5.82962 12.2241 5.82962 9.94625C5.82962 7.66838 7.66838 5.82962 9.94625 5.82962C12.2241 5.82962 14.0629 7.66838 14.0629 9.94625C14.0629 12.2241 12.2241 14.0629 9.94625 14.0629Z" fill="#C1C1C1"/>
                         </svg>
                     </div>
+                </div>
+                <div className="order-select-font-option">
+                    <span className="order-select-font">托育情境</span>
+                    <select
+                        className="order-table-search-input"
+                        onChange={handleSituationChange}
+                    >
+                        <option value="all">全部</option>
+                        <option value="longTern">長期托育</option>
+                        <option value="suddenly">臨時托育</option>
+                    </select>
                 </div>
                 <div className="order-select-font-option">
                     <span className="order-select-font">狀態篩選</span>

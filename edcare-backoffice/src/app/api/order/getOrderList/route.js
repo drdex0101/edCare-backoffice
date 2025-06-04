@@ -10,7 +10,7 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page"), 10) || 1;
-    const pageSize = 5;
+    const pageSize = 20;
     const offset = (page - 1) * pageSize;
 
     const email = request.cookies.get("email")?.value || "";
@@ -23,11 +23,17 @@ export async function GET(request) {
 
     let filterStatus = searchParams.get("filterStatus") || "all";
     let period = searchParams.get("period") || "all";
+    let filterSituation = searchParams.get("filterSituation") || "all";
     const searchTerm = searchParams.get("searchTerm") || "";
 
     let statusParam = null;
     if (filterStatus === "onGoing" || filterStatus === "signing") {
       statusParam = filterStatus;
+    }
+
+    let situationParam = null;
+    if (filterSituation === "longTern" || filterSituation === "suddenly") {
+      situationParam = filterSituation;
     }
 
     let periodDate = null;
@@ -57,10 +63,12 @@ export async function GET(request) {
       LEFT JOIN nanny n ON p.nanny_id::bigint = n.id
       LEFT JOIN member m ON n.memberid::bigint = m.id
       LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
+      LEFT JOIN care_data cd ON o.caretypeid::bigint = cd.id
       WHERE ($1::text IS NULL OR o.status = $1)
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
         AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
         AND n.area = $6
+        AND ($7::text IS NULL OR cd.care_type = $7)
       ORDER BY o.id DESC
       LIMIT $4 OFFSET $5
     `;
@@ -77,27 +85,32 @@ export async function GET(request) {
       LEFT JOIN nanny n ON p.nanny_id::bigint = n.id
       LEFT JOIN member m ON n.memberid::bigint = m.id
       LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
+      LEFT JOIN care_data cd ON o.caretypeid::bigint = cd.id
       WHERE ($1::text IS NULL OR o.status = $1)
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
         AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
+        AND ($6::text IS NULL OR cd.care_type = $6)
       ORDER BY o.id DESC
       LIMIT $4 OFFSET $5
     `;
     }
     let values = [];
     if (role === "member") {
-      values = [statusParam, periodDate, searchTerm, pageSize, offset,site];
+      values = [statusParam, periodDate, searchTerm, pageSize, offset,site,situationParam];
     }
     else {
-      values = [statusParam, periodDate, searchTerm, pageSize, offset];
+      values = [statusParam, periodDate, searchTerm, pageSize, offset,situationParam];
     }
     
     const countQuery = `
       SELECT COUNT(*) FROM orderinfo o
+      LEFT JOIN care_data cd ON o.caretypeid = cd.id
       WHERE ($1::text IS NULL OR o.status = $1)
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
+        AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
+        AND ($4::text IS NULL OR cd.care_type = $4)
     `;
-    const countValues = [statusParam, periodDate];
+    const countValues = [statusParam, periodDate, searchTerm, situationParam];
 
     const [dataResult, countResult] = await Promise.all([
       client.query(query, values),

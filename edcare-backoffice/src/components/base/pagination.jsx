@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../base/css/pagination.css';
 
 export default function Pagination({totalItems,currentPage, setCurrentPage }) {
-  const pageSize = 5; // 每頁顯示數量
+  const pageSize = 20; // 每頁顯示數量
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handlePageChange = (page) => {
