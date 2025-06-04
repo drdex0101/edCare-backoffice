@@ -31,7 +31,7 @@ export async function GET(request) {
     const client = await pool.connect();
 
     // Modify the SELECT clause to get all columns from kyc_info (k.*) and only job from member (m.job)
-    const query = `SELECT k.*, m.job,m.line_id
+    const query = `SELECT k.*, m.*
      FROM kyc_info as k LEFT JOIN member as m ON k.id = m.kyc_id::bigint WHERE k.id = $1 LIMIT 1;`;
     const values = [id];
     const result = await client.query(query, values);

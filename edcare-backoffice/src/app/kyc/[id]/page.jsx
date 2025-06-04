@@ -2,8 +2,15 @@
 import "./details.css";
 import React, { useState, useEffect, use } from "react";
 import { approvedNotify,failedNotify } from '../../util/notify';
+import Swal from 'sweetalert2';
+import { z } from "zod";
 
-import Link from "next/link";
+const updateSchema = z.object({
+  line_id: z.string().optional(),
+  cellphone: z.string().regex(/^09\d{8}$/, "請輸入有效的台灣手機號碼"),
+  email: z.string().email("請輸入有效的 Email 格式"),
+});
+
 export default function Page({ params }) {
     const { id } = use(params); // 使用 `use()` 來解開 Promise
     const [kycDetails, setKycDetails] = useState(null);
@@ -12,6 +19,8 @@ export default function Page({ params }) {
     const [isFrontModalOpen, setIsFrontModalOpen] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [loading, setLoading] = useState(true); // ✅ 加入 loading 狀態
+    const [cellphone, setCellphone] = useState("");
+    const [email, setEmail] = useState("");
 
     useEffect(() => {
         if (id) {
@@ -24,6 +33,8 @@ export default function Page({ params }) {
         const data = await response.json(); // ✅ 解析 JSON
         if (data.success) {
             setKycDetails(data.kycDetails);
+            setCellphone(data.kycDetails.cellphone || "");
+            setEmail(data.kycDetails.email || "");
             const fetchPromises = []; // 儲存所有的 fetch 請求
             if(data.kycDetails.identityfrontuploadid) {
               fetchPromises.push(fetchImgUrl(data.kycDetails.identityfrontuploadid, setImgFrontUrl));
@@ -112,6 +123,54 @@ export default function Page({ params }) {
       }
     };
 
+    const updateDetail = async (line_id, cellphone, email) => {
+      try {
+        // ✅ 驗證輸入格式
+        const parsed = updateSchema.parse({ line_id, cellphone, email });
+    
+        const response = await fetch(`/api/member/updateMember`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parsed),
+        });
+    
+        const data = await response.json();
+    
+        if (data.success) {
+          Swal.fire({
+            title: "完成",
+            text: "編輯完成",
+            icon: "success",
+          }).then(() => {
+            window.location.reload(); // ✅ 點擊確認後再刷新
+          });
+        } else {
+          Swal.fire({
+            title: "失敗",
+            text: "編輯失敗",
+            icon: "error",
+          });
+        }
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          const errorMsg = err.errors.map((e) => e.message).join("\n");
+          Swal.fire({
+            title: "輸入錯誤",
+            text: errorMsg,
+            icon: "warning",
+          });
+        } else {
+          console.error("Error updating detail:", err);
+          Swal.fire({
+            title: "錯誤",
+            text: "發生未知錯誤，請稍後再試。",
+            icon: "error",
+          });
+        }
+      }
+    };    
 
     const convertToTaiwanDate = (dateString) => {
         const date = new Date(dateString);
@@ -122,7 +181,7 @@ export default function Page({ params }) {
     };
 
     const { year, month, day } = kycDetails?.birthday ? convertToTaiwanDate(kycDetails.birthday) : { year: "", month: "", day: "" };
-
+    
     const toggleFrontModal = () => {
         setIsFrontModalOpen(!isFrontModalOpen);
     };
@@ -158,6 +217,24 @@ export default function Page({ params }) {
                   </button>
             </div>
           )}
+        </div>
+        <div className="content-layout">
+          <div className="content-info">
+            <div className="combine-layout">
+                <span className="details-content-font">手機</span>
+                <input type="text" className="input-layout" value={cellphone} onChange={(e) => setCellphone(e.target.value)}/>
+            </div>
+            <div className="combine-layout">
+                <span className="details-content-font">Email</span>
+                <input type="text" className="input-layout" value={email} onChange={(e) => setEmail(e.target.value)}/>
+            </div>
+            <div className="combine-layout">
+                <span className="details-content-font">編輯</span>
+                <button className="details-header-back-button-accept" onClick={() => updateDetail(kycDetails?.line_id, cellphone, email)}>
+                    編輯
+                </button>
+            </div>
+          </div> 
         </div>
         <div className="identifyCard-layout">
             <span className="details-content-font">身分證件</span>
