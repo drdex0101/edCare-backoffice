@@ -61,8 +61,55 @@ export default function Table({ orderList, columnNames }) {
     };
   }, [openModal, isEditModalOpen]);
 
+  function exportOrderListToCSV(orderList, nannyNameMap) {
+    const headers = ['No.', '保母', '小孩暱稱','托育情境', '狀態', '建立時間'];
+    const csvRows = [headers.join(",")];
+  
+    for (const order of orderList) {
+      const row = [
+        order.id,
+        order.nannyid ? (nannyNameMap[order.nannyid] || "載入中...") : "尚未配對",
+        order.nickname,
+        order.choosetype === "suddenly" ? "臨時托育" : "長期托育",
+        order.status === "create" ? "媒合中" : "已完成",
+        order.created_ts?.slice(0, 10) || "",
+      ];
+  
+      const escaped = row.map((val) =>
+        typeof val === "string" ? `"${val.replace(/"/g, '""')}"` : val
+      );
+  
+      csvRows.push(escaped.join(","));
+    }
+  
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+  
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "訂單列表.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+
   return (
     <div className="table-main">
+      <div style={{ display: "flex", justifyContent: "flex-start", margin: "10px",width: "100%" }}>
+        <button
+          onClick={() => exportOrderListToCSV(orderList, nannyNameMap)}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#EB9A38",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          匯出 CSV
+        </button>
+      </div>
       <div className="table-header">
         {columnNames.map((columnName, index) => (
           <div key={index} className="table-header-column">
@@ -78,6 +125,9 @@ export default function Table({ orderList, columnNames }) {
               {order.nannyid ? nannyNameMap[order.nannyid] || "載入中..." : "尚未配對"}
             </div>
             <div className="table-body-column">{order.nickname}</div>
+            <div className="table-body-column">
+            {order.choosetype === "suddenly" ? "臨時托育" : "長期托育"}
+            </div>
             <div className="table-body-column">
               <span className="order-status-success-font">
                 {order.status === "create" ? "媒合中" : "已完成"}

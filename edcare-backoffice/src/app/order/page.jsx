@@ -12,7 +12,7 @@ export default function Page() {
     const [period, setPeriod] = useState("all"); // 篩選時間
     const [filterSituation, setFilterSituation] = useState("all"); // 篩選情境
 
-    const columnNames = ['No.', '保母', '小孩暱稱', '狀態', '建立時間','詳情'];
+    const columnNames = ['No.', '保母', '小孩暱稱','托育情境', '狀態', '建立時間','詳情'];
     // 取得 order 列表
     const getorderList = async () => {
         try {
@@ -60,7 +60,6 @@ export default function Page() {
         setCurrentPage(1);
       };
       
-
     return (
       <div className="order-main">
         <span className="order-title">訂單管理</span>

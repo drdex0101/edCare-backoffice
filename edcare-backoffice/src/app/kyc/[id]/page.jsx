@@ -21,6 +21,8 @@ export default function Page({ params }) {
     const [loading, setLoading] = useState(true); // ✅ 加入 loading 狀態
     const [cellphone, setCellphone] = useState("");
     const [email, setEmail] = useState("");
+    const [address, setAddress] = useState("");
+    const [communicateaddress, setCommunicateAddress] = useState("");
 
     useEffect(() => {
         if (id) {
@@ -35,6 +37,8 @@ export default function Page({ params }) {
             setKycDetails(data.kycDetails);
             setCellphone(data.kycDetails.cellphone || "");
             setEmail(data.kycDetails.email || "");
+            setAddress(data.kycDetails.address || "");
+            setCommunicateAddress(data.kycDetails.communicateaddress || "");
             const fetchPromises = []; // 儲存所有的 fetch 請求
             if(data.kycDetails.identityfrontuploadid) {
               fetchPromises.push(fetchImgUrl(data.kycDetails.identityfrontuploadid, setImgFrontUrl));
@@ -80,7 +84,6 @@ export default function Page({ params }) {
         window.location.reload();
       } catch (err) {
         console.error("Error updating status:", err);
-        setError(err.message);
       }
     };
   
@@ -119,10 +122,48 @@ export default function Page({ params }) {
         });
       } catch (err) {
         console.error('Error updating status:', err);
-        setError(err.message);
+        Swal.fire({
+          title: '錯誤',
+          text: '發生未知錯誤，請稍後再試。',
+          icon: 'error',
+        });
       }
     };
 
+    const updateAddress = async (id, address, communicateaddress) => {
+      try {
+        const response = await fetch(`/api/kyc/updateAddress`, {
+          method: 'PATCH',
+          body: JSON.stringify({ address, communicateaddress, id }),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire({
+            title: "完成",
+            text: "地址更新成功",
+            icon: "success",
+          }).then(() => {
+           window.location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: "失敗",
+            text: "地址更新失敗",
+            icon: "error",
+          });
+        }
+      } catch (err) {
+        console.error("Error updating address:", err);
+        Swal.fire({
+          title: "錯誤",
+          text: "發生未知錯誤，請稍後再試。",
+          icon: "error",
+        });
+      }
+    };
     const updateDetail = async (line_id, cellphone, email) => {
       try {
         // ✅ 驗證輸入格式
@@ -324,17 +365,22 @@ export default function Page({ params }) {
             </div>
           </div>}
           <div style={{width: "100%",height: "1px",border: "1px solid #C1C1C1"}}></div>
+          <div style={{display: "flex",justifyContent: "space-between",alignItems: "center",gap: "10px"}}>
           <span className="details-content-main-font">聯絡方式</span>
+          <button className="details-header-back-button-accept" onClick={() => updateAddress(kycDetails?.id, address, communicateaddress)}>
+                    編輯
+                </button>
+          </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">戶籍地址</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.address || ""}/>
+                <input type="text" className="input-layout" value={address} onChange={(e) => setAddress(e.target.value)}/>
             </div>
           </div>
           <div className="content-info">
             <div className="combine-layout">
                 <span className="details-content-font">通訊地址</span>
-                <input type="text" className="input-layout" disabled value={kycDetails?.communicateaddress || ""}/>
+                <input type="text" className="input-layout" value={communicateaddress} onChange={(e) => setCommunicateAddress(e.target.value)}/>
             </div>
           </div>
         </div>
