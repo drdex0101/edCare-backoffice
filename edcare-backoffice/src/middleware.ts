@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
 
   if (isProtected && !token) {
     // 🔒 導回 login 並攜帶原始網址（可選）
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/', request.url);
     loginUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(loginUrl);
   }
