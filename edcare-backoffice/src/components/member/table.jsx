@@ -96,11 +96,16 @@ export default function Table({memberList, columnNames}) {
     return (
         <div className="table-main">
             <div className="table-header">
-                {columnNames.map((columnName, index) => (
-                    <div key={index} className={`table-header-column ${index === 9 ? 'sticky-col' : ''}`}>
-                        {columnName}
-                    </div>
-                ))}
+            {columnNames.map((columnName, index) => {
+            let stickyClass = "";
+            if (index === 8) stickyClass = "sticky-col";
+
+            return (
+                <div key={index} className={`table-header-column ${stickyClass}`}>
+                {columnName}
+                </div>
+            );
+            })}
             </div>
             <div className="table-body">
                 {memberList.map((member, index) => (
@@ -129,16 +134,14 @@ export default function Table({memberList, columnNames}) {
                         <div className="table-body-column">
                             {member.update_ts ? new Date(member.update_ts).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }) : '-'}
                         </div>
-                        <div className="table-body-column">
-                            {member.status === 'approve' ? (
+                        <div className="table-body-column sticky-col">
+                        {member.status === 'approve' ? (
                                 <span className="kyc-table-status-allow">審核通過</span>
                             ) : member.status === 'fail' ? (
                                 <span className="kyc-table-status-reject">審核不通過</span>
                             ) : (
                                 <span className="kyc-table-status-pending">待審核</span>
                             )}
-                        </div>
-                        <div className="table-body-column sticky-col">
                             {member.status === 'approve' ? (
                                 <button className="kyc-table-status-button-allow" disabled={member.id == null} onClick={() => goToDetail(member.id,member.line_id)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 15 16" fill="none">

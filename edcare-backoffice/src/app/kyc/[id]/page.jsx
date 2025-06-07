@@ -80,8 +80,8 @@ export default function Page({ params }) {
         }
   
         const data = await response.json();
-        console.log("Update Response:", data);
-        window.location.reload();
+        //console.log("Update Response:", data);
+        //window.location.reload();
       } catch (err) {
         console.error("Error updating status:", err);
       }
@@ -109,16 +109,17 @@ export default function Page({ params }) {
           failedNotify(line_id);
         }
     
-        // 成功執行後續邏輯
         if (job === "保母") {
           changeRichMenu("richmenu-4cd0f0ee469a18663ccdb14f059b84d0", line_id);
         } else {
           changeRichMenu("richmenu-e8fbe1f3d2acf42b9f4b3020f033288a", line_id);
         }
-        swal.fire({
+        Swal.fire({
           title: '完成',
           text: '審核完成',
           icon: 'success',
+        }).then(() => {
+          window.location.reload();
         });
       } catch (err) {
         console.error('Error updating status:', err);
@@ -185,7 +186,7 @@ export default function Page({ params }) {
             text: "編輯完成",
             icon: "success",
           }).then(() => {
-            window.location.reload(); // ✅ 點擊確認後再刷新
+           window.location.reload(); // ✅ 點擊確認後再刷新
           });
         } else {
           Swal.fire({
