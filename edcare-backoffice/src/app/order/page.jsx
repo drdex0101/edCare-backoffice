@@ -102,6 +102,7 @@ export default function Page() {
                         <option value="matchPending">預約中</option>
                         <option value="signing">接洽中</option>
                         <option value="create">媒合中</option>
+                        <option value="fail">媒合失敗</option>
                     </select>
                 </div>
                 <div className="order-select-font-option">
