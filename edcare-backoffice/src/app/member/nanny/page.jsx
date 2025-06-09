@@ -17,8 +17,7 @@ export default function Page() {
     "註冊時間",
     "送審時間",
     "審核時間",
-    "狀態",
-    "詳細",
+    "狀態/詳細",
   ];
   const [filterStatus, setFilterStatus] = useState("all"); // ✅ 新增篩選狀態
   // 取得 member 列表

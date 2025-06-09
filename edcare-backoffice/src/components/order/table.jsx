@@ -71,7 +71,19 @@ export default function Table({ orderList, columnNames }) {
         order.nannyid ? nannyNameMap[order.nannyid] || "載入中..." : "尚未配對",
         order.nickname,
         order.choosetype === "suddenly" ? "臨時托育" : "長期托育",
-        order.status === "create" ? "媒合中" : "已完成",
+        order.status_name === "create"
+                  ? "媒合中"
+                  : order.status_name === "matchByParent" || order.status_name === "matchByNanny"
+                  ? "預約中"
+                  : order.status_name === "signing"
+                  ? "接洽中"
+                  : order.status_name === "onGoing"
+                  ? "已完成"
+                   : order.status_name === "finish"
+                  ? "已完成"
+                  : order.status_name === "fail"
+                  ? "媒合失敗"
+                  : "媒合中",
         order.created_ts?.slice(0, 10) || "",
       ];
 
@@ -138,11 +150,19 @@ export default function Table({ orderList, columnNames }) {
             </div>
             <div className="table-body-column">
               <span className="order-status-success-font">
-                {order.status === "create"
+                {order.status_name === "create"
                   ? "媒合中"
-                  : order.status === "fail"
+                  : order.status_name === "matchByParent" || order.status_name === "matchByNanny"
+                  ? "預約中"
+                  : order.status_name === "signing"
+                  ? "接洽中"
+                  : order.status_name === "onGoing"
+                  ? "已完成"
+                   : order.status_name === "finish"
+                  ? "已完成"
+                  : order.status_name === "fail"
                   ? "媒合失敗"
-                  : "已完成"}
+                  : "媒合中"}
               </span>
             </div>
             <div className="table-body-column">

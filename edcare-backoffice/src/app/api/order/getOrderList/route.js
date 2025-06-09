@@ -27,10 +27,11 @@ export async function GET(request) {
     const searchTerm = searchParams.get("searchTerm") || "";
 
     let statusParam = null;
-    if (filterStatus === "onGoing" || filterStatus === "signing") {
-      statusParam = filterStatus;
+    if (filterStatus === "matchPending") {
+      statusParam = ["matchByParent", "matchByNanny"];
+    } else if (filterStatus !== "all") {
+      statusParam = [filterStatus]; // create, signing, onGoing, ...
     }
-
     let situationParam = null;
     if (filterSituation === "longTern" || filterSituation === "suddenly") {
       situationParam = filterSituation;
@@ -53,7 +54,7 @@ export async function GET(request) {
     let query = "";
     if (role === "member") {
       query = `
-      SELECT o.*
+      SELECT o.*,p.status as status_name
       FROM orderinfo o
       LEFT JOIN (
         SELECT DISTINCT ON (order_id) *
@@ -64,7 +65,21 @@ export async function GET(request) {
       LEFT JOIN member m ON n.memberid::bigint = m.id
       LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
       LEFT JOIN care_data cd ON o.caretypeid::bigint = cd.id
-      WHERE ($1::text IS NULL OR o.status = $1)
+      WHERE (
+        $1::text[] IS NULL
+        OR (
+          $1::text[] IS NOT NULL AND (
+            (
+              'create' = ANY($1) AND o.status = 'create' and p.status is null
+            )
+            OR (
+              'create' != ALL($1) AND (
+                o.status = ANY($1) OR p.status = ANY($1)
+              )
+            )
+          )
+        )
+      )
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
         AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
         AND n.area = $6
@@ -75,7 +90,7 @@ export async function GET(request) {
     }
     else {
       query = `
-      SELECT o.*
+      SELECT o.*,p.status as status_name
       FROM orderinfo o
       LEFT JOIN (
         SELECT DISTINCT ON (order_id) *
@@ -86,7 +101,21 @@ export async function GET(request) {
       LEFT JOIN member m ON n.memberid::bigint = m.id
       LEFT JOIN kyc_info k ON m.kyc_id::int = k.id
       LEFT JOIN care_data cd ON o.caretypeid::bigint = cd.id
-      WHERE ($1::text IS NULL OR o.status = $1)
+     WHERE (
+        $1::text[] IS NULL
+        OR (
+          $1::text[] IS NOT NULL AND (
+            (
+              'create' = ANY($1) AND o.status = 'create' and p.status is null
+            )
+            OR (
+              'create' != ALL($1) AND (
+                o.status = ANY($1) OR p.status = ANY($1)
+              )
+            )
+          )
+        )
+      )
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
         AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
         AND ($6::text IS NULL OR cd.care_type = $6)
@@ -105,7 +134,26 @@ export async function GET(request) {
     const countQuery = `
       SELECT COUNT(*) FROM orderinfo o
       LEFT JOIN care_data cd ON o.caretypeid = cd.id
-      WHERE ($1::text IS NULL OR o.status = $1)
+      LEFT JOIN (
+        SELECT DISTINCT ON (order_id) *
+        FROM pair
+        ORDER BY order_id, created_ts DESC
+      ) p ON p.order_id::bigint = o.id
+        WHERE (
+          $1::text[] IS NULL
+          OR (
+            $1::text[] IS NOT NULL AND (
+              (
+                'create' = ANY($1) AND o.status = 'create' and p.status is null
+              )
+              OR (
+                'create' != ALL($1) AND (
+                  o.status = ANY($1) OR p.status = ANY($1)
+                )
+              )
+            )
+          )
+        )
         AND ($2::timestamp IS NULL OR o.created_ts >= $2)
         AND ($3::text IS NULL OR o.nickname::text ILIKE '%' || $3 || '%')
         AND ($4::text IS NULL OR cd.care_type = $4)

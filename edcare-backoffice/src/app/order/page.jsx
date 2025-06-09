@@ -99,6 +99,8 @@ export default function Page() {
                     >
                         <option value="all">全部</option>
                         <option value="onGoing">已完成</option>
+                        <option value="matchPending">預約中</option>
+                        <option value="signing">接洽中</option>
                         <option value="create">媒合中</option>
                     </select>
                 </div>
