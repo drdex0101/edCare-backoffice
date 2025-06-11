@@ -257,6 +257,17 @@
     width: 40px;
 }
 
+.order-status-signing-font {
+    color: var(---Error-OnContainer, #f70202);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
 .order-status-fail-font {
     color: var(---Error-OnContainer, #EB9A38);
     text-align: center;
