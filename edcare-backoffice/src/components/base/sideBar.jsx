@@ -29,27 +29,6 @@ export default function SideBar() {
           </p>
         </div>
       </div>
-        <Link href="/dashboard" className={`frame-layout ${activeItem === '儀表板' ? 'active' : ''}`} onClick={() => handleItemClick('儀表板')}>
-            <div className="frame-layout-header-combine">
-                <div className={`frame-layout-header ${activeItem === '儀表板' ? 'active' : ''}`}></div>
-                <div className="frame-layout-header-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
-                        <g clipPath="url(#clip0_356_32389)">
-                            <path d="M18.2222 6.28559V8.06337H14.6667V6.28559H18.2222ZM9.33333 6.28559V11.6189H5.77778V6.28559H9.33333ZM18.2222 13.3967V18.73H14.6667V13.3967H18.2222ZM9.33333 16.9523V18.73H5.77778V16.9523H9.33333ZM20 4.50781H12.8889V9.84115H20V4.50781ZM11.1111 4.50781H4V13.3967H11.1111V4.50781ZM20 11.6189H12.8889V20.5078H20V11.6189ZM11.1111 15.1745H4V20.5078H11.1111V15.1745Z" 
-                            fill={activeItem === '儀表板' ? '#EB9A38' : '#808080'}/>
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_356_32389">
-                                <rect width="24" height="24" fill="white" transform="translate(0 0.507812)"/>
-                            </clipPath>
-                        </defs>
-                    </svg>
-                </div>
-                <div className={`frame-layout-header-text ${activeItem === '儀表板' ? 'active' : ''}`}>
-                    儀表板
-                </div>
-            </div>
-        </Link>
 
         {role === 'admin' && (
             <Link href="/admin" className={`frame-layout ${activeItem === '權限管理' ? 'active' : ''}`} onClick={() => handleItemClick('權限管理')}>

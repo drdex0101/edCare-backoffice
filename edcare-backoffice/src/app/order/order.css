@@ -209,7 +209,31 @@
     line-height: 24px;
 }
 
-.order-status-success-font {
+.order-status-finish-font {
+    color: var(---correct-100, #27f702);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 40px;
+}
+
+.order-status-onGoing-font {
+    color: var(---correct-100, #27f702);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 40px;
+}
+
+.order-status-create-font {
     color: var(---correct-100, #f70202);
     text-align: center;
     /* Line/medium/8pt */
@@ -221,8 +245,42 @@
     width: 40px;
 }
 
-.order-status-matching-font {
-    color: var(---Error-OnContainer, #410002);
+.order-status-null-font {
+    color: var(---correct-100, #f70202);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 40px;
+}
+
+.order-status-fail-font {
+    color: var(---Error-OnContainer, #EB9A38);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.order-status-matchByParent-font {
+    color: var(---Error-OnContainer, #f70202);
+    text-align: center;
+    /* Line/medium/8pt */
+    font-family: "LINE Seed JP_TTF";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.order-status-matchByNanny-font {
+    color: var(---Error-OnContainer, #f70202);
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";

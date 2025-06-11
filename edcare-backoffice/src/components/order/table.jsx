@@ -149,7 +149,7 @@ export default function Table({ orderList, columnNames }) {
               {order.choosetype === "suddenly" ? "臨時托育" : "長期托育"}
             </div>
             <div className="table-body-column">
-              <span className="order-status-success-font">
+              <span className={`order-status-${order.status_name}-font`}>
                 {order.status_name === "create"
                   ? "媒合中"
                   : order.status_name === "matchByParent" || order.status_name === "matchByNanny"
