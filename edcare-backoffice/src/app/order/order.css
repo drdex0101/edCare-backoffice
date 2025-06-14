@@ -210,7 +210,7 @@
 }
 
 .order-status-finish-font {
-    color: var(---correct-100, #27f702);
+    color: var(---correct-100, #27f7021b);
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
@@ -222,7 +222,7 @@
 }
 
 .order-status-onGoing-font {
-    color: var(---correct-100, #27f702);
+    color: var(---correct-100, #27f7021b);
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
