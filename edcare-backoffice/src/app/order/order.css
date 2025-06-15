@@ -214,23 +214,21 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    width: 40px;
 }
 
 .order-status-onGoing-font {
-    color: var(---correct-100, #27f7021b);
+    color: var(---correct-100, #02f781);
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    width: 40px;
 }
 
 .order-status-create-font {
@@ -238,11 +236,10 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    width: 40px;
 }
 
 .order-status-null-font {
@@ -250,11 +247,10 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    width: 40px;
 }
 
 .order-status-signing-font {
@@ -262,7 +258,7 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -273,7 +269,7 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -284,7 +280,7 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -295,7 +291,7 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -306,7 +302,7 @@
     text-align: center;
     /* Line/medium/8pt */
     font-family: "LINE Seed JP_TTF";
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
