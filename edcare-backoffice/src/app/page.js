@@ -29,7 +29,6 @@ export default function Home() {
       const data = await response.json();
       console.log(data.success);
       if (data.success) {
-        Cookies.set("authToken", data.token, { expires: 1/12 }); // ✅ 設定 `authToken` (7 天有效)
         Cookies.set("email", email, { expires: 1/12 }); // ✅ 存 email
         Cookies.set("role", data.role, { expires: 1/12 }); // ✅ 存 role
         router.push("/admin"); // ✅ 登入成功導向到 `dashboard`
